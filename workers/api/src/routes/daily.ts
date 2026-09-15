@@ -5,7 +5,7 @@ import {
   resolveEncryptionKey,
   resolveSessionSecret,
 } from "../lib/config";
-import { buildDevDaily, clampDays, dateWindow, mapOuraToDaily } from "../lib/daily";
+import { clampDays, dateWindow, loadDevDaily, mapOuraToDaily } from "../lib/daily";
 import {
   fetchDailySummaries,
   refreshAccessToken,
@@ -17,7 +17,7 @@ import {
   upsertEncryptedTokens,
 } from "../lib/tokens";
 
-/** GET /api/me/daily?days=7|30|90 — session-gated daily series. */
+/** GET /api/me/daily?days=7|30|90 — session-gated nested daily (live board shape). */
 export async function handleMeDaily(
   request: Request,
   env: Env,
@@ -42,7 +42,7 @@ export async function handleMeDaily(
   };
 
   if (session.kind === "dev") {
-    return Response.json(buildDevDaily(days), { headers });
+    return Response.json(await loadDevDaily(days), { headers });
   }
 
   const encKey = resolveEncryptionKey(request, env);
@@ -79,11 +79,10 @@ export async function handleMeDaily(
     endDate,
   });
   const body = mapOuraToDaily({
-    days,
     dates,
     sleep: raw.sleep,
     readiness: raw.readiness,
     activity: raw.activity,
   });
-  return Response.json(body, { headers });
+  return Response.json({ ...body, user_id: session.user_id }, { headers });
 }

@@ -6,6 +6,7 @@ import {
   handleOuraCallback,
   handleOuraStart,
 } from "./routes/auth";
+import { handleMeAi } from "./routes/ai";
 import { handleMeDaily } from "./routes/daily";
 import { handleMe } from "./routes/me";
 
@@ -47,6 +48,9 @@ export default {
           break;
         case "/api/me/daily":
           res = await handleMeDaily(request, env);
+          break;
+        case "/api/me/ai":
+          res = await handleMeAi(request, env);
           break;
         case "/api/health":
           res = Response.json({

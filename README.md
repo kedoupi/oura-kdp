@@ -32,7 +32,7 @@ pnpm dev:api
 
 - `GET /api/auth/oura/start` 仍 **302** 到真实 Oura authorize URL 形状（`cloud.ouraring.com/oauth/authorize?...`，`client_id` 默认为文档占位 `oura_dev_placeholder_client_id`）
 - 生产主机且无 `OURA_CLIENT_ID` → **503**（不会签发假生产 token）
-- 本地可用 **DEV 演示登录**（`GET /api/auth/dev/session`）写入 HttpOnly session，看板用标注过的演示序列点亮
+- 本地可用 **DEV 演示登录**（`GET /api/auth/dev/session`）写入 HttpOnly session；`/api/me/daily` 返回 **kedoupi 个人看板真实日数据**（嵌套 `days[]`），不是编造序列
 
 真实 OAuth：在 [Oura applications](https://cloud.ouraring.com/oauth/applications) 创建应用，把 `OURA_CLIENT_ID` / `OURA_CLIENT_SECRET` 写入 `.dev.vars` 或 `wrangler secret put`。callback 用 `TOKEN_ENCRYPTION_KEY` 做 AES-GCM 后把 **refresh_token** 写入 D1；前端永不拿到 token。
 
@@ -63,12 +63,28 @@ curl -sI -c /tmp/oura-cookies -b /tmp/oura-cookies http://localhost:8787/api/aut
 # 期望: 302 到 http://localhost:5173/?login=dev 且 Set-Cookie: oura_session=...; HttpOnly
 
 curl -s -b /tmp/oura-cookies 'http://localhost:8787/api/me/daily?days=7'
-# 期望: JSON { source:"dev", label:"DEV 演示数据 · 非真实 Oura", series:[...7], summary:{sleep,readiness,activity} }
+# 期望: 现网个人看板形状
+# { ok:true, from, to, count:7, days:[{ date, sleep:{score,contributors}, readiness:{score,temperature_*,contributors}, activity:{score,steps,active_calories}|null }], source:"dev", user_id:"kedoupi" }
+# 数字来自 kedoupi 真实样本（例如 2026-09-15 activity.steps=10273），不是正弦波假数据
 ```
+
+`?days=7|30|90`。bundled 样本是 30 天（2026-08-17 → 2026-09-15）；请求 90 天时不编造额外日期，只返回已有真实行（DEV 运行时会先尝试拉 `api.xiaotaozi.cc/oura/daily?user_id=kedoupi&days=…`）。
 
 浏览器：登录页点 **DEV 演示登录** → 出现睡眠/准备度/活动摘要卡与 7/30/90 趋势图。
 
-生产路径（有真实密钥）：`/api/auth/oura/start` → Oura 同意 → `/api/auth/oura/callback` 换 token、加密入库、设 session → `/api/me/daily` 用该用户 refresh 拉 `daily_sleep` / `daily_readiness` / `daily_activity`。
+生产路径（有真实密钥）：`/api/auth/oura/start` → Oura 同意 → `/api/auth/oura/callback` 换 token、加密入库、设 session → `/api/me/daily` 用该用户 refresh 拉 `daily_sleep` / `daily_readiness` / `daily_activity`，再经 `pickSleep` / `pickReadiness` / `pickActivity` 收成同一套嵌套 `days[]`。
+
+## Phase 0 — `/api/me/daily` 契约（2026-09-15）
+
+对照真源：`GET https://api.xiaotaozi.cc/oura/daily?user_id=kedoupi&days=30`（已入库 `workers/api/src/data/oura_daily_kedoupi_30d.json`）。
+
+**主 payload**（与现网一致）：`ok`, `days[]`, `from`, `to`, `count`。会话 extras：`source`, `dev`, `label`, `user_id`, `dataset`。
+
+**DEV**：在 per-user OAuth token 就绪之前，演示登录走个人公开看板数据集（kedoupi / `api.xiaotaozi.cc`），保证 UI 看到的 contributors / steps / active_calories 是生产数字。
+
+**OAuth**：Cloud 日接口经 pick* 映射；缺密钥时该路径保持 503 / 未登录 401，类型与 mapper 已就绪。
+
+**看板**：`apps/web` 已按现网 `h5.xiaotaozi.cc/health/`（build 20260914-1735-ai-now）整页迁入（chrome / 周滑块 / 三卡 spark / SRA / 仪表 / 步数档 / 步数柱 / 雷达 / 热力 / 均值表 / 30vs90 / 洞察 / 贡献条 / AI 抽屉）。OAuth 登录壳叠在看板之上。前端一次拉 `?days=90` 再本地切片，默认周视图。DEV 的 `/api/me/ai` 代理现网 kedoupi AI；OAuth 用户该接口暂 501，抽屉壳保留。
 
 ## Layout
 
