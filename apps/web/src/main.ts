@@ -59,32 +59,45 @@ function renderSummary(summary: DailyResponse["summary"]) {
 function renderChart(series: DailyPoint[]) {
   const labels = series.map((p) => p.date.slice(5));
   const canvas = document.getElementById("trend-chart") as HTMLCanvasElement;
+  const tickColor = "#64748b";
+  const gridColor = "rgba(148, 163, 184, 0.28)";
   const data = {
     labels,
     datasets: [
       {
         label: "睡眠",
         data: series.map((p) => p.sleep),
-        borderColor: "#7c6cff",
-        backgroundColor: "transparent",
+        borderColor: "#f97316",
+        backgroundColor: "rgba(249, 115, 22, 0.12)",
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
         spanGaps: true,
         tension: 0.3,
+        fill: false,
       },
       {
         label: "准备度",
         data: series.map((p) => p.readiness),
-        borderColor: "#3dd6c6",
+        borderColor: "#ea580c",
         backgroundColor: "transparent",
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
         spanGaps: true,
         tension: 0.3,
       },
       {
         label: "活动",
         data: series.map((p) => p.activity),
-        borderColor: "#ffb020",
+        borderColor: "#fdba74",
         backgroundColor: "transparent",
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
         spanGaps: true,
         tension: 0.3,
+        borderDash: [4, 3],
       },
     ],
   };
@@ -98,10 +111,43 @@ function renderChart(series: DailyPoint[]) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: "#8b9bb8" } } },
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: {
+          position: "top",
+          align: "end",
+          labels: {
+            color: tickColor,
+            boxWidth: 8,
+            boxHeight: 8,
+            usePointStyle: true,
+            pointStyle: "circle",
+            font: { size: 11 },
+          },
+        },
+        tooltip: {
+          backgroundColor: "rgba(255, 255, 255, 0.98)",
+          titleColor: "#0f172a",
+          bodyColor: "#334155",
+          borderColor: "#edd5c4",
+          borderWidth: 1,
+          padding: 10,
+          cornerRadius: 8,
+        },
+      },
       scales: {
-        x: { ticks: { color: "#8b9bb8", maxTicksLimit: 8 }, grid: { color: "#243049" } },
-        y: { min: 0, max: 100, ticks: { color: "#8b9bb8" }, grid: { color: "#243049" } },
+        x: {
+          ticks: { color: tickColor, maxTicksLimit: 8 },
+          grid: { display: false },
+          border: { display: false },
+        },
+        y: {
+          min: 0,
+          max: 100,
+          ticks: { color: tickColor },
+          grid: { color: gridColor },
+          border: { display: false },
+        },
       },
     },
   });
