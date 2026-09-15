@@ -9,6 +9,7 @@
   --sleep: #7c6cff;
   --ready: #3dd6c6;
   --act: #ffb020;
+  --danger: #ff6b7a;
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
@@ -25,6 +26,8 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   gap: 16px; margin-bottom: 24px;
 }
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.user-label { color: var(--muted); font-size: 0.9rem; }
 h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
 .sub { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
 .btn {
@@ -33,6 +36,17 @@ h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
 }
 .btn.primary { background: var(--accent); border-color: transparent; color: #fff; }
 .btn:hover { filter: brightness(1.08); }
+.flash {
+  margin: 0 0 16px; padding: 10px 12px; border-radius: 10px;
+  background: #2a1520; border: 1px solid #5a2430; color: var(--danger);
+  font-size: 0.9rem;
+}
+.guest {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px 24px; text-align: center;
+}
+.guest h2 { margin: 0 0 8px; font-size: 1.25rem; }
+.guest p { margin: 0 0 20px; color: var(--muted); line-height: 1.5; }
 .cards {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;
 }
@@ -64,3 +78,4 @@ h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
 .chip.active { background: #1e2b48; color: var(--text); border-color: var(--accent); }
 .chart-wrap { position: relative; min-height: 240px; }
 .status { color: var(--muted); font-size: 0.85rem; margin: 8px 0 0; }
+.status.error { color: var(--danger); }

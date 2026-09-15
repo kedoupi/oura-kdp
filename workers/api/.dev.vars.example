@@ -1,5 +1,9 @@
+# Copy to .dev.vars (gitignored). Empty values are placeholders — no real secrets.
+# openssl rand -hex 32
+
 OURA_CLIENT_ID=
 OURA_CLIENT_SECRET=
-OURA_REDIRECT_URI=http://localhost:8787/api/auth/oura/callback
+OURA_REDIRECT_URI=http://localhost:5173/api/auth/oura/callback
+FRONTEND_ORIGIN=http://localhost:5173
 TOKEN_ENCRYPTION_KEY=
 SESSION_SECRET=

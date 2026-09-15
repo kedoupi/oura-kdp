@@ -1,30 +1,76 @@
-import type { Env } from "../env";
-import { DEFAULT_SCOPES, OURA_AUTH_URL } from "../lib/oura";
+import {
+  OAUTH_STATE_TTL_SECONDS,
+  SESSION_TTL_SECONDS,
+  type Env,
+} from "../env";
+import { clearSessionCookieHeader, isSecureRequest, sessionCookieHeader } from "../lib/cookies";
+import { randomHex } from "../lib/crypto";
+import { frontendRedirect, json, missingSecrets, SETUP_HINT } from "../lib/http";
+import {
+  DEFAULT_SCOPES,
+  exchangeCodeForTokens,
+  fetchPersonalInfo,
+  OURA_AUTH_URL,
+} from "../lib/oura";
+import {
+  createSession,
+  destroySession,
+  saveTokenBundle,
+  tokensToBundle,
+} from "../lib/session";
 
-/** GET /api/auth/oura/start — redirect to Oura OAuth authorize. */
-export function handleOuraStart(request: Request, env: Env): Response {
-  const url = new URL(request.url);
-  const clientId = env.OURA_CLIENT_ID;
+function redirectUri(request: Request, env: Env): string {
+  return env.OURA_REDIRECT_URI?.trim() || `${new URL(request.url).origin}/api/auth/oura/callback`;
+}
+
+/** GET /api/auth/oura/start — persist CSRF state, redirect to Oura authorize. */
+export async function handleOuraStart(
+  request: Request,
+  env: Env,
+): Promise<Response> {
+  const clientId = env.OURA_CLIENT_ID?.trim();
   if (!clientId) {
-    return Response.json(
+    return json(
       {
         error: "OURA_CLIENT_ID not configured",
-        hint: "Set Worker secrets / .dev.vars — see .env.example",
+        hint: SETUP_HINT,
+        setup: {
+          developer_portal: "https://cloud.ouraring.com/oauth/applications",
+          local_file: "workers/api/.dev.vars (copy from .dev.vars.example)",
+          production: "wrangler secret put OURA_CLIENT_ID / OURA_CLIENT_SECRET / TOKEN_ENCRYPTION_KEY / SESSION_SECRET",
+          scopes: DEFAULT_SCOPES,
+        },
       },
-      { status: 503 },
+      503,
     );
   }
 
-  const redirectUri =
-    env.OURA_REDIRECT_URI ??
-    `${url.origin}/api/auth/oura/callback`;
+  const state = randomHex(32);
 
-  // TODO: generate & store CSRF `state` in D1 / encrypted cookie
-  const state = crypto.randomUUID();
+  try {
+    await env.DB.prepare(
+      "DELETE FROM oauth_states WHERE expires_at < datetime('now')",
+    ).run();
+    await env.DB.prepare(
+      `INSERT INTO oauth_states (state, expires_at)
+       VALUES (?, datetime('now', '+${OAUTH_STATE_TTL_SECONDS} seconds'))`,
+    )
+      .bind(state)
+      .run();
+  } catch (err) {
+    return json(
+      {
+        error: "failed to store oauth state",
+        hint: "Apply D1 migrations: pnpm db:migrate:local (or wrangler d1 migrations apply oura_kdp --local / --remote)",
+        detail: err instanceof Error ? err.message : String(err),
+      },
+      500,
+    );
+  }
 
   const auth = new URL(OURA_AUTH_URL);
   auth.searchParams.set("client_id", clientId);
-  auth.searchParams.set("redirect_uri", redirectUri);
+  auth.searchParams.set("redirect_uri", redirectUri(request, env));
   auth.searchParams.set("response_type", "code");
   auth.searchParams.set("scope", DEFAULT_SCOPES);
   auth.searchParams.set("state", state);
@@ -32,10 +78,10 @@ export function handleOuraStart(request: Request, env: Env): Response {
   return Response.redirect(auth.toString(), 302);
 }
 
-/** GET /api/auth/oura/callback — exchange code, persist encrypted refresh token. */
+/** GET /api/auth/oura/callback — verify state, exchange code, persist tokens, set session. */
 export async function handleOuraCallback(
   request: Request,
-  _env: Env,
+  env: Env,
 ): Promise<Response> {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
@@ -43,23 +89,117 @@ export async function handleOuraCallback(
   const err = url.searchParams.get("error");
 
   if (err) {
-    return Response.json({ error: err }, { status: 400 });
+    return frontendRedirect(request, env, { error: err });
   }
   if (!code || !state) {
-    return Response.json({ error: "missing code or state" }, { status: 400 });
+    return frontendRedirect(request, env, { error: "missing_code_or_state" });
   }
 
-  // TODO:
-  // 1. Verify state
-  // 2. exchangeCodeForTokens(...)
-  // 3. Encrypt refresh_token with TOKEN_ENCRYPTION_KEY → D1
-  // 4. Create session cookie (SESSION_SECRET)
-  // 5. Redirect to frontend /
+  const missing = missingSecrets(env, [
+    "OURA_CLIENT_ID",
+    "OURA_CLIENT_SECRET",
+    "TOKEN_ENCRYPTION_KEY",
+    "SESSION_SECRET",
+  ]);
+  if (missing.length > 0) {
+    return json(
+      {
+        error: "oauth_not_configured",
+        missing,
+        hint: SETUP_HINT,
+      },
+      503,
+    );
+  }
 
-  return Response.json({
-    ok: false,
-    stub: true,
-    message: "OAuth callback stub — wire token exchange + D1 next",
-    received: { code: code.slice(0, 6) + "…", state },
-  });
+  const stored = await env.DB.prepare(
+    "SELECT state FROM oauth_states WHERE state = ? AND expires_at > datetime('now')",
+  )
+    .bind(state)
+    .first<{ state: string }>();
+
+  await env.DB.prepare("DELETE FROM oauth_states WHERE state = ?").bind(state).run();
+
+  if (!stored) {
+    return frontendRedirect(request, env, { error: "invalid_state" });
+  }
+
+  const uri = redirectUri(request, env);
+
+  let tokens;
+  try {
+    tokens = await exchangeCodeForTokens({
+      code,
+      clientId: env.OURA_CLIENT_ID!,
+      clientSecret: env.OURA_CLIENT_SECRET!,
+      redirectUri: uri,
+    });
+  } catch (cause) {
+    return frontendRedirect(request, env, {
+      error: "token_exchange_failed",
+      detail: cause instanceof Error ? cause.message : "exchange_failed",
+    });
+  }
+
+  let profile;
+  try {
+    profile = await fetchPersonalInfo(tokens.access_token);
+  } catch (cause) {
+    return frontendRedirect(request, env, {
+      error: "profile_failed",
+      detail: cause instanceof Error ? cause.message : "profile_failed",
+    });
+  }
+
+  const existing = await env.DB.prepare(
+    "SELECT id FROM users WHERE oura_user_id = ?",
+  )
+    .bind(profile.id)
+    .first<{ id: string }>();
+
+  const userId = existing?.id ?? crypto.randomUUID();
+  const email = profile.email ?? null;
+
+  if (existing) {
+    await env.DB.prepare(
+      "UPDATE users SET email = ?, updated_at = datetime('now') WHERE id = ?",
+    )
+      .bind(email, userId)
+      .run();
+  } else {
+    await env.DB.prepare(
+      "INSERT INTO users (id, email, oura_user_id) VALUES (?, ?, ?)",
+    )
+      .bind(userId, email, profile.id)
+      .run();
+  }
+
+  await saveTokenBundle(env, userId, tokensToBundle(tokens));
+  const cookieValue = await createSession(env, userId);
+
+  const redirect = frontendRedirect(request, env, { logged_in: "1" });
+  const headers = new Headers(redirect.headers);
+  headers.append(
+    "Set-Cookie",
+    sessionCookieHeader(cookieValue, {
+      maxAge: SESSION_TTL_SECONDS,
+      secure: isSecureRequest(request),
+    }),
+  );
+  return new Response(redirect.body, { status: redirect.status, headers });
+}
+
+/** POST|GET /api/auth/logout — drop session row and clear cookie. */
+export async function handleLogout(
+  request: Request,
+  env: Env,
+): Promise<Response> {
+  await destroySession(request, env);
+  return json(
+    { ok: true },
+    200,
+    {
+      "Set-Cookie": clearSessionCookieHeader(isSecureRequest(request)),
+    },
+  );
 }

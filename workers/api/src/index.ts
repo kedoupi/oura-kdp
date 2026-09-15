@@ -1,6 +1,7 @@
 import type { Env } from "./env";
-import { handleOuraCallback, handleOuraStart } from "./routes/auth";
+import { handleLogout, handleOuraCallback, handleOuraStart } from "./routes/auth";
 import { handleMeDaily } from "./routes/daily";
+import { handleMe } from "./routes/me";
 
 function cors(req: Request): HeadersInit {
   const origin = req.headers.get("Origin") ?? "*";
@@ -9,6 +10,7 @@ function cors(req: Request): HeadersInit {
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Allow-Credentials": "true",
+    Vary: "Origin",
   };
 }
 
@@ -24,10 +26,16 @@ export default {
       let res: Response;
       switch (url.pathname) {
         case "/api/auth/oura/start":
-          res = handleOuraStart(request, env);
+          res = await handleOuraStart(request, env);
           break;
         case "/api/auth/oura/callback":
           res = await handleOuraCallback(request, env);
+          break;
+        case "/api/auth/logout":
+          res = await handleLogout(request, env);
+          break;
+        case "/api/me":
+          res = await handleMe(request, env);
           break;
         case "/api/me/daily":
           res = await handleMeDaily(request, env);

@@ -19,7 +19,7 @@
 | 项 | 假设 |
 |---|---|
 | 许可证 | MIT |
-| 栈 | CF Pages（前端）+ Workers（OAuth/API）+ D1（用户/会话）；refresh token 加密存 D1（或 Worker secrets + per-user encrypted blob） |
+| 栈 | CF Pages（前端）+ Workers（OAuth/API）+ D1（用户/会话）；refresh token 加密存 D1 |
 | 密钥 | 禁止 client secret / token 写进仓；仅环境变量 |
 | OAuth scope | 默认 `daily personal email`（睡眠/准备度/活动） |
 | 首版范围 | **不做**现网 AI 诊断（`/oura/ai`）；看板对齐现网：7/30/90 天睡眠/准备度/活动趋势 |
@@ -29,16 +29,17 @@
 
 ## 4. 安全边界
 
-- `OURA_CLIENT_ID` / `OURA_CLIENT_SECRET` / `TOKEN_ENCRYPTION_KEY` 仅环境变量 / Worker secrets
-- `.env.example` 无真值；`.gitignore` 含 `.env`
+- `OURA_CLIENT_ID` / `OURA_CLIENT_SECRET` / `TOKEN_ENCRYPTION_KEY` / `SESSION_SECRET` 仅环境变量 / Worker secrets
+- `.env.example` / `.dev.vars.example` 无真值；`.gitignore` 含 `.env` 与 `.dev.vars`
 - 前端永不持有 Oura token
+- OAuth `state` 存 D1（短 TTL、一次性）；会话 cookie `oura_session` 为 HMAC 签名的 session id
+- refresh token AES-GCM 加密后写入 `encrypted_tokens`；Oura refresh token 轮换后立即回写
 
 ## 5. 验收清单
 
-- [ ] 仓库公开，MIT，含 DESIGN / README / LICENSE / .gitignore / .env.example
-- [ ] Worker 路由占位：`/api/auth/oura/start`、`/api/auth/oura/callback`、`/api/me/daily`
-- [ ] 前端看板壳：摘要卡 + 趋势图区（7/30/90）
-- [ ] 本地可 `pnpm i && pnpm dev`（或等价）跑通壳子
-- [ ] 无真实密钥入库
+- [x] 仓库公开，MIT，含 DESIGN / README / LICENSE / .gitignore / .env.example
+- [x] Worker：`/api/auth/oura/start`、`/api/auth/oura/callback`、`/api/auth/logout`、`/api/me`、`/api/me/daily`
+- [x] 前端：未登录 / 已登录 UI；「用 Oura 登录」；7/30/90 趋势接真实 daily API
+- [x] 本地可 `pnpm i && pnpm dev`；D1 migrations；无真实密钥入库
 - [ ] 骨架经 PR 合入，未直推 main
-- [ ] 未改 DNS / 未部署生产
+- [x] 未改 DNS / 未部署生产 / 未实现 `/oura/ai`

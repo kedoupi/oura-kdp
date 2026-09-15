@@ -8,6 +8,7 @@
     "dev": "pnpm run --parallel dev:web dev:api",
     "dev:web": "pnpm --filter @oura-kdp/web dev",
     "dev:api": "pnpm --filter @oura-kdp/api dev",
+    "db:migrate:local": "pnpm --filter @oura-kdp/api db:migrate:local",
     "build": "pnpm --filter @oura-kdp/web build && pnpm --filter @oura-kdp/api build",
     "typecheck": "pnpm -r typecheck"
   },
