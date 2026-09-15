@@ -1,4 +1,4 @@
-import kedoupiBoardJson from "../data/oura_daily_kedoupi_30d.json" with { type: "json" };
+import { KEDOUPI_BOARD_SAMPLE as kedoupiBoardJson } from "../data/kedoupi-board.ts";
 import type { OuraDailyDoc } from "./oura.ts";
 import {
   indexByDay,
