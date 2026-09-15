@@ -80,7 +80,7 @@ curl -s -b /tmp/oura-cookies 'http://localhost:8787/api/me/daily?days=7'
 
 **主 payload**（与现网一致）：`ok`, `days[]`, `from`, `to`, `count`。会话 extras：`source`, `dev`, `label`, `user_id`, `dataset`。
 
-**DEV**：在 per-user OAuth token 就绪之前，演示登录走个人公开看板数据集（kedoupi / `api.xiaotaozi.cc`），保证后续 UI 模块看到的 contributors / steps / active_calories 是生产数字。本阶段**不**迁入全量 health 前端。
+**DEV**：在 per-user OAuth token 就绪之前，演示登录走个人公开看板数据集（kedoupi / `api.xiaotaozi.cc`），保证 UI 看到的 contributors / steps / active_calories 是生产数字。
 
 **OAuth**：Cloud 日接口经 pick* 映射；缺密钥时该路径保持 503 / 未登录 401，类型与 mapper 已就绪。
 

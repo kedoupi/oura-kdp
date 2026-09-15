@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#fffaf5" />
-    <meta name="color-scheme" content="light" />
     <meta name="description" content="Oura 健康看板：睡眠、准备度、活动趋势与多维分析。" />
     <title>健康看板 · 珂抖屁</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -17,7 +16,7 @@
         <p class="sub">用 Oura 登录后查看睡眠 · 准备度 · 活动</p>
         <button id="btn-login" class="btn primary" type="button">用 Oura 登录</button>
         <button id="btn-dev" class="btn ghost" type="button" hidden>DEV 演示登录</button>
-        <p id="login-error" class="status error" hidden></p>
+        <p id="login-error" class="status err" hidden></p>
         <p class="hint login-hint">
           登录会跳转到 <code>cloud.ouraring.com/oauth/authorize</code>。
           本地无真实密钥时可用 DEV 演示登录；DEV 日数据来自 kedoupi 个人看板真实样本，不是编造序列。
@@ -41,7 +40,7 @@
             <a class="active" href="/">健康</a>
             <button type="button" id="btnAi" class="ai-btn">AI 分析</button>
             <span id="session-badge" class="ver-chip" hidden>DEV 演示</span>
-            <button type="button" id="btn-logout" class="ai-btn logout">退出</button>
+            <button type="button" id="btn-logout" class="ai-btn">退出</button>
           </nav>
         </div>
       </header>
@@ -180,8 +179,8 @@
         </section>
 
         <footer class="foot">
-          <span>数据来自 Oura API · 纸面工作室 · 会话看板</span>
-          <span class="ver-chip">build 20260914-1735-ai-now</span>
+          <span>数据来自 Oura API · 纸面工作室 · 仅个人看板</span>
+          <span class="ver-chip">build 20260914-1728-weekend</span>
         </footer>
       </main>
 

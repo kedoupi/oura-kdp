@@ -60,7 +60,7 @@
 - 真源样本：`workers/api/src/data/oura_daily_kedoupi_30d.json`（live `user_id=kedoupi`）。
 - **DEV** 在 per-user OAuth 之前使用该公开看板数据集（可 live fetch，失败则 bundled 30d）。禁止用正弦波假序列冒充契约。
 - **OAuth** 路径：Oura Cloud `daily_*` → `pickSleep` / `pickReadiness` / `pickActivity` → 同一套 `days[]`。
-- 看板壳已按现网 `h5.xiaotaozi.cc/health/` 整页迁入（含 AI 抽屉）。OAuth 登录叠在现网壳上，不替换模块。
+- 看板 CSS 锁死为现网 `h5.xiaotaozi.cc/health/` `<style>` 原文（颜色/间距/组件），禁止另做皮肤。OAuth 登录样式只挂在 `#login-view`。
 - DEV `/api/me/ai` 代理现网 kedoupi AI；per-user OAuth AI 尚未落地（501）。
 
 ## 6. 验收清单

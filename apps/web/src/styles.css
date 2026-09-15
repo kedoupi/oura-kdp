@@ -631,14 +631,15 @@ h1{
   .ai-drawer.open{transform:translateY(0)}
 }
 
-/* OAuth login overlay (product layer on top of the live health shell) */
-[hidden]{display:none!important}
-.login-view{
+/* Login overlay only. Must not restyle the health shell (pixel-same to h5). */
+#login-view[hidden],
+#dash-view[hidden]{display:none!important}
+#login-view{
   min-height:70vh;
   display:flex;align-items:center;justify-content:center;
   padding:24px 0 calc(36px + var(--safe-b));
 }
-.login-card{
+#login-view .login-card{
   width:min(420px,100%);
   background:var(--surface);
   border:1px solid var(--line);
@@ -647,9 +648,9 @@ h1{
   padding:28px 24px;
   display:flex;flex-direction:column;gap:12px;
 }
-.login-card h1{font-size:22px}
-.login-card .sub{margin:0}
-.btn{
+#login-view h1{font-size:22px}
+#login-view .sub{margin:0}
+#login-view .btn{
   border:1px solid var(--line);
   background:var(--surface);
   color:var(--ink);
@@ -658,18 +659,15 @@ h1{
   min-height:44px;
   cursor:pointer;
   font:inherit;font-weight:600;
+  width:100%;
 }
-.btn.primary{background:var(--primary);border-color:#ea580c;color:#fff;width:100%;font-size:16px}
-.btn.ghost{width:100%;background:transparent;color:var(--muted)}
-.btn:hover{background:var(--peach);border-color:var(--primary);color:#ea580c}
-.btn.primary:hover{background:#ea580c;color:#fff}
-.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
-.login-hint{margin:0;line-height:1.5;font-size:12px;color:var(--muted)}
-.login-hint code{
+#login-view .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;font-size:16px}
+#login-view .btn.ghost{background:transparent;color:var(--muted)}
+#login-view .btn:hover{background:var(--peach);border-color:var(--primary);color:var(--primary)}
+#login-view .btn.primary:hover{background:var(--primary);color:#fff}
+#login-view .login-hint{margin:0;line-height:1.5;font-size:12px;color:var(--muted)}
+#login-view .login-hint code{
   color:var(--ink);font-size:11px;
   background:var(--peach);border:1px solid var(--line);
   border-radius:6px;padding:1px 5px;
 }
-.status.error{color:#b45309}
-.chrome .nav{display:flex;gap:10px;align-items:center}
-.chrome .ai-btn.logout{color:var(--muted);font-weight:600}
