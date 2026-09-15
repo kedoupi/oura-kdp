@@ -5,7 +5,7 @@ import {
   resolveEncryptionKey,
   resolveSessionSecret,
 } from "../lib/config";
-import { buildDevDaily, clampDays, dateWindow, mapOuraToDaily } from "../lib/daily";
+import { clampDays, dateWindow, loadDevDaily, mapOuraToDaily } from "../lib/daily";
 import {
   fetchDailySummaries,
   refreshAccessToken,
@@ -23,7 +23,7 @@ export async function handleMeDaily(
   env: Env,
 ): Promise<Response> {
   const url = new URL(request.url);
-  const days = clampDays(Number(url.searchParams.get("days") ?? "30"));
+  const days = clampDays(Number(url.searchParams.get("days") ?? "90"));
 
   const secret = resolveSessionSecret(request, env);
   if (!secret) {
@@ -42,7 +42,7 @@ export async function handleMeDaily(
   };
 
   if (session.kind === "dev") {
-    return Response.json(buildDevDaily(days), { headers });
+    return Response.json(await loadDevDaily(days), { headers });
   }
 
   const encKey = resolveEncryptionKey(request, env);

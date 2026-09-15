@@ -27,6 +27,11 @@ export type OuraDailyDoc = {
   id?: string;
   day: string;
   score?: number | null;
+  contributors?: Record<string, number | null | undefined>;
+  temperature_deviation?: number | null;
+  temperature_trend_deviation?: number | null;
+  steps?: number | null;
+  active_calories?: number | null;
 };
 
 export type OuraListResponse = {

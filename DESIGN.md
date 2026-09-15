@@ -22,7 +22,7 @@
 | 栈 | CF Pages（前端）+ Workers（OAuth/API）+ D1（用户/会话）；refresh token 加密存 D1（或 Worker secrets + per-user encrypted blob） |
 | 密钥 | 禁止 client secret / token 写进仓；仅环境变量 |
 | OAuth scope | 默认 `daily personal email`（睡眠/准备度/活动） |
-| 首版范围 | **不做**现网 AI 诊断（`/oura/ai`）；看板对齐现网：7/30/90 天睡眠/准备度/活动趋势 |
+| 首版范围 | **全量迁入**现网健康看板模块 A–O（含 AI 抽屉）；`/api/me/ai` 会话门控，未就绪时返回「未接好」桩；OAuth + DEV 登录叠加，不替代看板 |
 | 多用户 | 每人 OAuth 自己的 Oura；**不做**「公开无登录个人看板」默认路径（可后续加 share link） |
 | 仓库 | `kedoupi/oura-kdp`，公开 |
 | 分支 | 一律 PR，不直接推 main |
@@ -36,8 +36,8 @@
 ## 5. 验收清单
 
 - [ ] 仓库公开，MIT，含 DESIGN / README / LICENSE / .gitignore / .env.example
-- [ ] Worker 路由占位：`/api/auth/oura/start`、`/api/auth/oura/callback`、`/api/me/daily`
-- [ ] 前端看板壳：摘要卡 + 趋势图区（7/30/90）
+- [ ] Worker 路由：`/api/auth/oura/start`、`/api/auth/oura/callback`、`/api/me/daily`（嵌套 `days[]`）、`/api/me/ai`
+- [ ] 前端全量看板：现网 CSS/DOM 模块 A–O + OAuth/DEV 登录门
 - [ ] 本地可 `pnpm i && pnpm dev`（或等价）跑通壳子
 - [ ] 无真实密钥入库
 - [ ] 骨架经 PR 合入，未直推 main

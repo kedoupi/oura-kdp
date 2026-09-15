@@ -62,11 +62,12 @@ curl -sI http://localhost:8787/api/auth/oura/start
 curl -sI -c /tmp/oura-cookies -b /tmp/oura-cookies http://localhost:8787/api/auth/dev/session
 # 期望: 302 到 http://localhost:5173/?login=dev 且 Set-Cookie: oura_session=...; HttpOnly
 
-curl -s -b /tmp/oura-cookies 'http://localhost:8787/api/me/daily?days=7'
-# 期望: JSON { source:"dev", label:"DEV 演示数据 · 非真实 Oura", series:[...7], summary:{sleep,readiness,activity} }
+curl -s -b /tmp/oura-cookies 'http://localhost:8787/api/me/daily?days=90'
+# 期望: JSON { ok:true, source:"dev", days:[{date,sleep,readiness,activity}], … }
+# days[] 为现网嵌套形状（含 contributors / steps / active_calories）
 ```
 
-浏览器：登录页点 **DEV 演示登录** → 出现睡眠/准备度/活动摘要卡与 7/30/90 趋势图。
+浏览器：登录页点 **DEV 演示登录** → 完整现网健康看板（摘要卡 spark/delta、SRA、仪表、步数、雷达、热力、表、洞察、贡献条、AI 抽屉）。
 
 生产路径（有真实密钥）：`/api/auth/oura/start` → Oura 同意 → `/api/auth/oura/callback` 换 token、加密入库、设 session → `/api/me/daily` 用该用户 refresh 拉 `daily_sleep` / `daily_readiness` / `daily_activity`。
 
@@ -84,7 +85,7 @@ DESIGN.md         产品与安全假设
 - Cloudflare Pages（前端）
 - Cloudflare Workers + D1（OAuth / API / 会话）
 - 密钥仅环境变量 / Worker secrets，见 `.env.example`
-- 本仓不改 DNS、不部署生产、不做 `/oura/ai`
+- 本仓不改 DNS、不部署生产；AI 抽屉走会话 `/api/me/ai`（未就绪返回「未接好」，DEV 可代理个人 `/oura/ai`）
 
 ## License
 

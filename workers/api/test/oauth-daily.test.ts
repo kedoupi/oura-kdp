@@ -79,28 +79,54 @@ describe("AES-GCM token envelope", () => {
 });
 
 describe("daily series", () => {
-  it("maps Oura documents onto a stable chart shape", () => {
+  it("maps Oura documents onto nested days[] matching health API", () => {
     const { dates } = dateWindow(7, new Date("2026-09-15T12:00:00Z"));
     const body = mapOuraToDaily({
       days: 7,
       dates,
-      sleep: [{ day: dates[0]!, score: 88 }],
-      readiness: [{ day: dates[0]!, score: 77 }],
-      activity: [{ day: dates[0]!, score: 66 }],
+      sleep: [{
+        day: dates[0]!,
+        score: 88,
+        contributors: { deep_sleep: 90, efficiency: 80 },
+      }],
+      readiness: [{
+        day: dates[0]!,
+        score: 77,
+        temperature_deviation: 0.02,
+        contributors: { hrv_balance: 81, previous_night: 70 },
+      }],
+      activity: [{
+        day: dates[0]!,
+        score: 66,
+        steps: 5492,
+        active_calories: 323,
+      }],
     });
+    assert.equal(body.ok, true);
     assert.equal(body.source, "oura");
-    assert.equal(body.series.length, 7);
+    assert.equal(body.days.length, 7);
+    assert.equal(body.days[0]?.sleep?.score, 88);
+    assert.equal(body.days[0]?.sleep?.contributors.deep_sleep, 90);
+    assert.equal(body.days[0]?.readiness?.score, 77);
+    assert.equal(body.days[0]?.readiness?.contributors.hrv_balance, 81);
+    assert.equal(body.days[0]?.activity?.steps, 5492);
+    assert.equal(body.days[0]?.activity?.active_calories, 323);
     assert.equal(body.series[0]?.sleep, 88);
     assert.equal(body.summary.sleep, 88);
     assert.equal(body.stub, undefined);
   });
 
-  it("DEV series is labeled and realistic", () => {
+  it("DEV uses real kedoupi nested sample, not fake waves", () => {
     const body = buildDevDaily(30);
+    assert.equal(body.ok, true);
     assert.equal(body.source, "dev");
     assert.equal(body.dev, true);
-    assert.equal(body.series.length, 30);
-    assert.match(body.label ?? "", /DEV/);
+    assert.ok(body.days.length >= 28);
+    assert.match(body.label ?? "", /kedoupi/);
+    const first = body.days[0];
+    assert.ok(first?.sleep?.contributors && Object.keys(first.sleep.contributors).length >= 5);
+    assert.ok(first?.readiness?.contributors && Object.keys(first.readiness.contributors).length >= 6);
+    assert.ok(typeof first?.activity?.steps === "number" || first?.activity == null);
     assert.ok(body.summary.sleep > 40);
   });
 
