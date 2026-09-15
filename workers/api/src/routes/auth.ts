@@ -28,6 +28,7 @@ import {
   readStateCookie,
   DEV_USER_ID,
 } from "../lib/session";
+import { ensureSchema } from "../lib/schema";
 import {
   consumeOauthState,
   saveOauthState,
@@ -71,6 +72,7 @@ export async function handleOuraStart(
 
   const state = crypto.randomUUID();
   try {
+    await ensureSchema(env);
     await saveOauthState(env, state);
   } catch {
     // D1 optional for tonight check 1 — signed cookie still binds CSRF state.
@@ -138,6 +140,7 @@ export async function handleOuraCallback(
   }
 
   try {
+    await ensureSchema(env);
     const tokens = await exchangeCodeForTokens({
       code,
       clientId: env.OURA_CLIENT_ID!,
@@ -183,6 +186,7 @@ export async function handleDevSession(
     return jsonError("SESSION_SECRET not configured", 503);
   }
   try {
+    await ensureSchema(env);
     await ensureDevUser(env);
     const sessionId = await createSession(env, DEV_USER_ID, "dev");
     const headers = new Headers();

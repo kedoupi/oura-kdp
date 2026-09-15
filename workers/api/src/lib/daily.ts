@@ -88,3 +88,35 @@ export function mapOuraToDaily(args: {
     source: "oura",
   };
 }
+
+function clampScore(n: number): number {
+  return Math.max(40, Math.min(98, Math.round(n)));
+}
+
+/** Deterministic DEV series so the dashboard lights up without Oura secrets. */
+export function buildDevDaily(days: number, now = new Date()): DailyResponse {
+  const { dates } = dateWindow(days, now);
+  const series: DailyPoint[] = dates.map((date, idx) => {
+    const i = days - 1 - idx;
+    const wave = Math.sin(i / 3) * 8;
+    return {
+      date,
+      sleep: clampScore(78 + wave + ((i * 3) % 5)),
+      readiness: clampScore(74 + wave * 0.8 + ((i * 2) % 7)),
+      activity: clampScore(70 + wave * 1.1 + ((i * 5) % 6)),
+    };
+  });
+  return {
+    days,
+    series,
+    summary: {
+      sleep: avg(series.map((p) => p.sleep)),
+      readiness: avg(series.map((p) => p.readiness)),
+      activity: avg(series.map((p) => p.activity)),
+    },
+    source: "dev",
+    stub: true,
+    dev: true,
+    label: "DEV 演示数据 · 非真实 Oura",
+  };
+}

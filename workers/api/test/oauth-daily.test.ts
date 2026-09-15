@@ -6,8 +6,7 @@ import {
   resolveClientId,
 } from "../src/lib/config.ts";
 import { decryptJson, encryptJson, hmacSign, hmacVerify } from "../src/lib/crypto.ts";
-import { clampDays, dateWindow, mapOuraToDaily } from "../src/lib/daily.ts";
-import { buildDevDaily } from "../src/lib/mock.ts";
+import { buildDevDaily, clampDays, dateWindow, mapOuraToDaily } from "../src/lib/daily.ts";
 import { buildAuthorizeUrl, DEFAULT_SCOPES, OURA_AUTH_URL } from "../src/lib/oura.ts";
 
 function fakeEnv(overrides: Record<string, string | undefined> = {}) {

@@ -41,9 +41,9 @@ pnpm dev:api
 ```bash
 pnpm i
 cp .env.example workers/api/.dev.vars
-pnpm --filter @oura-kdp/api test
-pnpm typecheck
-pnpm dev:api    # 另一个终端: pnpm dev:web
+pnpm test && pnpm typecheck
+pnpm dev:api    # applies local D1 migrations, then wrangler
+# 另一个终端: pnpm dev:web
 ```
 
 **检查 1 — 登录按钮不是死 stub（authorize URL 形状）**

@@ -5,8 +5,7 @@ import {
   resolveEncryptionKey,
   resolveSessionSecret,
 } from "../lib/config";
-import { clampDays, dateWindow, mapOuraToDaily } from "../lib/daily";
-import { buildDevDaily } from "../lib/mock";
+import { buildDevDaily, clampDays, dateWindow, mapOuraToDaily } from "../lib/daily";
 import {
   fetchDailySummaries,
   refreshAccessToken,
