@@ -10,7 +10,8 @@
   --ready: #3dd6c6;
   --act: #ffb020;
   --danger: #ff6b7a;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: "Noto Sans SC", "Segoe UI", system-ui, -apple-system,
+    "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 * { box-sizing: border-box; }
