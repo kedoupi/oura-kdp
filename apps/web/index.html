@@ -9,46 +9,65 @@
   </head>
   <body>
     <div class="app">
-      <header class="header">
-        <div>
+      <section id="login-view" class="login-view" hidden>
+        <div class="login-card">
           <h1>oura.kdp.cool</h1>
-          <p class="sub">睡眠 · 准备度 · 活动</p>
+          <p class="sub">用 Oura 登录后查看睡眠 · 准备度 · 活动</p>
+          <button id="btn-login" class="btn primary" type="button">用 Oura 登录</button>
+          <button id="btn-dev" class="btn ghost" type="button" hidden>DEV 演示登录</button>
+          <p id="login-error" class="status error" hidden></p>
+          <p class="hint login-hint">
+            登录会跳转到 <code>cloud.ouraring.com/oauth/authorize</code>。
+            本地无真实密钥时可用 DEV 演示登录点亮看板。
+          </p>
         </div>
-        <button id="btn-connect" class="btn primary" type="button">连接 Oura</button>
-      </header>
-
-      <section class="cards" id="summary-cards">
-        <article class="card" data-metric="sleep">
-          <h2>睡眠</h2>
-          <p class="value" id="val-sleep">—</p>
-          <p class="hint">平均分 / 近窗</p>
-        </article>
-        <article class="card" data-metric="readiness">
-          <h2>准备度</h2>
-          <p class="value" id="val-readiness">—</p>
-          <p class="hint">平均分 / 近窗</p>
-        </article>
-        <article class="card" data-metric="activity">
-          <h2>活动</h2>
-          <p class="value" id="val-activity">—</p>
-          <p class="hint">平均分 / 近窗</p>
-        </article>
       </section>
 
-      <section class="trends">
-        <div class="trends-head">
-          <h2>趋势</h2>
-          <div class="range" role="group" aria-label="天数">
-            <button type="button" class="chip" data-days="7">7 天</button>
-            <button type="button" class="chip active" data-days="30">30 天</button>
-            <button type="button" class="chip" data-days="90">90 天</button>
+      <div id="dash-view" hidden>
+        <header class="header">
+          <div>
+            <h1>oura.kdp.cool</h1>
+            <p class="sub">睡眠 · 准备度 · 活动</p>
           </div>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="trend-chart" height="120"></canvas>
-        </div>
-        <p id="status" class="status">加载 stub 数据中…</p>
-      </section>
+          <div class="header-actions">
+            <span id="session-badge" class="badge" hidden>DEV</span>
+            <button id="btn-logout" class="btn" type="button">退出</button>
+          </div>
+        </header>
+
+        <section class="cards" id="summary-cards">
+          <article class="card" data-metric="sleep">
+            <h2>睡眠</h2>
+            <p class="value" id="val-sleep">—</p>
+            <p class="hint">平均分 / 近窗</p>
+          </article>
+          <article class="card" data-metric="readiness">
+            <h2>准备度</h2>
+            <p class="value" id="val-readiness">—</p>
+            <p class="hint">平均分 / 近窗</p>
+          </article>
+          <article class="card" data-metric="activity">
+            <h2>活动</h2>
+            <p class="value" id="val-activity">—</p>
+            <p class="hint">平均分 / 近窗</p>
+          </article>
+        </section>
+
+        <section class="trends">
+          <div class="trends-head">
+            <h2>趋势</h2>
+            <div class="range" role="group" aria-label="天数">
+              <button type="button" class="chip" data-days="7">7 天</button>
+              <button type="button" class="chip active" data-days="30">30 天</button>
+              <button type="button" class="chip" data-days="90">90 天</button>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="trend-chart" height="120"></canvas>
+          </div>
+          <p id="status" class="status">加载中…</p>
+        </section>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

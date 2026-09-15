@@ -1,4 +1,4 @@
--- Minimal schema for multi-user Oura OAuth sessions
+-- Multi-user Oura OAuth sessions + encrypted refresh tokens
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   email TEXT,
@@ -10,16 +10,24 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS sessions (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'oauth', -- oauth | dev
   expires_at TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 
--- refresh_token ciphertext only; never store plaintext tokens
+-- AES-GCM ciphertext + IV (base64 TEXT). Never store plaintext tokens.
 CREATE TABLE IF NOT EXISTS encrypted_tokens (
   user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  ciphertext BLOB NOT NULL,
-  iv BLOB NOT NULL,
+  ciphertext TEXT NOT NULL,
+  iv TEXT NOT NULL,
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- One-time CSRF state for OAuth authorize → callback
+CREATE TABLE IF NOT EXISTS oauth_states (
+  state TEXT PRIMARY KEY,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

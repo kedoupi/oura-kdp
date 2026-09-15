@@ -5,4 +5,6 @@ export interface Env {
   OURA_REDIRECT_URI?: string;
   TOKEN_ENCRYPTION_KEY?: string;
   SESSION_SECRET?: string;
+  ALLOW_DEV_LOGIN?: string;
+  FRONTEND_ORIGIN?: string;
 }

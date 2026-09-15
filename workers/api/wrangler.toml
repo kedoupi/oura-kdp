@@ -9,5 +9,6 @@ database_name = "oura_kdp"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "../../migrations"
 
-# Secrets (set via `wrangler secret put`, never commit):
+# Secrets via `wrangler secret put` / `.dev.vars` — never commit real values:
 # OURA_CLIENT_ID, OURA_CLIENT_SECRET, TOKEN_ENCRYPTION_KEY, SESSION_SECRET
+# Optional vars: ALLOW_DEV_LOGIN, FRONTEND_ORIGIN, OURA_REDIRECT_URI
