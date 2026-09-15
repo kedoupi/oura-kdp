@@ -1,0 +1,17 @@
+{
+  "name": "oura-kdp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Open-source Oura health dashboard for oura.kdp.cool",
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "pnpm run --parallel dev:web dev:api",
+    "dev:web": "pnpm --filter @oura-kdp/web dev",
+    "dev:api": "pnpm --filter @oura-kdp/api dev",
+    "build": "pnpm --filter @oura-kdp/web build && pnpm --filter @oura-kdp/api build",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

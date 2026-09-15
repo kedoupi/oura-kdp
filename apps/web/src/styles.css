@@ -1,0 +1,66 @@
+:root {
+  color-scheme: dark;
+  --bg: #0b1220;
+  --panel: #121a2b;
+  --border: #243049;
+  --text: #e8eefc;
+  --muted: #8b9bb8;
+  --accent: #5b8cff;
+  --sleep: #7c6cff;
+  --ready: #3dd6c6;
+  --act: #ffb020;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 20% -10%, #1a2744, transparent),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.app { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 24px;
+}
+h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.02em; }
+.sub { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
+.btn {
+  border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600;
+}
+.btn.primary { background: var(--accent); border-color: transparent; color: #fff; }
+.btn:hover { filter: brightness(1.08); }
+.cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;
+}
+@media (max-width: 720px) { .cards { grid-template-columns: 1fr; } }
+.card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px;
+}
+.card h2 { margin: 0; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
+.card .value { margin: 10px 0 4px; font-size: 2rem; font-weight: 700; }
+.card[data-metric="sleep"] .value { color: var(--sleep); }
+.card[data-metric="readiness"] .value { color: var(--ready); }
+.card[data-metric="activity"] .value { color: var(--act); }
+.hint { margin: 0; color: var(--muted); font-size: 0.8rem; }
+.trends {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px;
+}
+.trends-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.trends h2 { margin: 0; font-size: 1rem; }
+.range { display: flex; gap: 6px; }
+.chip {
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem;
+}
+.chip.active { background: #1e2b48; color: var(--text); border-color: var(--accent); }
+.chart-wrap { position: relative; min-height: 240px; }
+.status { color: var(--muted); font-size: 0.85rem; margin: 8px 0 0; }

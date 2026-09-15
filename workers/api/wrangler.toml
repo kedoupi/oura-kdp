@@ -1,0 +1,13 @@
+name = "oura-kdp-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "oura_kdp"
+# Replace after: wrangler d1 create oura_kdp
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "../../migrations"
+
+# Secrets (set via `wrangler secret put`, never commit):
+# OURA_CLIENT_ID, OURA_CLIENT_SECRET, TOKEN_ENCRYPTION_KEY, SESSION_SECRET
