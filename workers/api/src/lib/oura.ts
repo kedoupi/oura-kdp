@@ -23,10 +23,26 @@ export type OuraPersonalInfo = {
   age?: number | null;
 };
 
+/**
+ * Loose Oura Cloud daily document. `daily_sleep` / `daily_readiness` /
+ * `daily_activity` share `id` + `day` + `score`; readiness adds temperature
+ * fields; activity adds steps / calories / time buckets. pick* selects the
+ * production field set — extra Cloud keys are ignored.
+ */
 export type OuraDailyDoc = {
   id?: string;
   day: string;
   score?: number | null;
+  contributors?: Record<string, number | null | undefined>;
+  temperature_deviation?: number | null;
+  temperature_trend_deviation?: number | null;
+  steps?: number | null;
+  active_calories?: number | null;
+  equivalent_walking_distance?: number | null;
+  high_activity_time?: number | null;
+  medium_activity_time?: number | null;
+  low_activity_time?: number | null;
+  sedentary_time?: number | null;
 };
 
 export type OuraListResponse = {

@@ -33,7 +33,37 @@
 - `.env.example` 无真值；`.gitignore` 含 `.env`
 - 前端永不持有 Oura token
 
-## 5. 验收清单
+## 5. Phase 0 日数据契约（已落地，叠在 OAuth 会话上）
+
+`GET /api/me/daily?days=7|30|90` 主形状对齐现网个人看板，不以扁平 `series[]` 为真源：
+
+```json
+{
+  "ok": true,
+  "from": "YYYY-MM-DD",
+  "to": "YYYY-MM-DD",
+  "count": 30,
+  "days": [{
+    "date": "YYYY-MM-DD",
+    "sleep": { "score": 76, "contributors": { "deep_sleep": 95, "efficiency": 88, "latency": 43, "rem_sleep": 78, "restfulness": 94, "timing": 90, "total_sleep": 65 } },
+    "readiness": {
+      "score": 79,
+      "temperature_deviation": -0.08,
+      "temperature_trend_deviation": 0.06,
+      "contributors": { "activity_balance": 79, "body_temperature": 100, "hrv_balance": 89, "previous_day_activity": 91, "previous_night": 77, "recovery_index": 62, "resting_heart_rate": 88, "sleep_balance": 61 }
+    },
+    "activity": { "score": 97, "steps": 6861, "active_calories": 486 }
+  }]
+}
+```
+
+- 真源样本：`workers/api/src/data/oura_daily_kedoupi_30d.json`（live `user_id=kedoupi`）。
+- **DEV** 在 per-user OAuth 之前使用该公开看板数据集（可 live fetch，失败则 bundled 30d）。禁止用正弦波假序列冒充契约。
+- **OAuth** 路径：Oura Cloud `daily_*` → `pickSleep` / `pickReadiness` / `pickActivity` → 同一套 `days[]`。
+- 看板壳已按现网 `h5.xiaotaozi.cc/health/` 整页迁入（含 AI 抽屉）。OAuth 登录叠在现网壳上，不替换模块。
+- DEV `/api/me/ai` 代理现网 kedoupi AI；per-user OAuth AI 尚未落地（501）。
+
+## 6. 验收清单
 
 - [ ] 仓库公开，MIT，含 DESIGN / README / LICENSE / .gitignore / .env.example
 - [ ] Worker 路由占位：`/api/auth/oura/start`、`/api/auth/oura/callback`、`/api/me/daily`

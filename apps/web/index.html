@@ -2,74 +2,198 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#fffaf5" />
     <meta name="color-scheme" content="light" />
-    <title>健康看板 · oura.kdp.cool</title>
+    <meta name="description" content="Oura 健康看板：睡眠、准备度、活动趋势与多维分析。" />
+    <title>健康看板 · 珂抖屁</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
-    <div class="app">
-      <section id="login-view" class="login-view" hidden>
-        <div class="login-card">
-          <h1>oura.kdp.cool</h1>
-          <p class="sub">用 Oura 登录后查看睡眠 · 准备度 · 活动</p>
-          <button id="btn-login" class="btn primary" type="button">用 Oura 登录</button>
-          <button id="btn-dev" class="btn ghost" type="button" hidden>DEV 演示登录</button>
-          <p id="login-error" class="status error" hidden></p>
-          <p class="hint login-hint">
-            登录会跳转到 <code>cloud.ouraring.com/oauth/authorize</code>。
-            本地无真实密钥时可用 DEV 演示登录点亮看板。
-          </p>
+    <section id="login-view" class="login-view" hidden>
+      <div class="login-card">
+        <h1>oura.kdp.cool</h1>
+        <p class="sub">用 Oura 登录后查看睡眠 · 准备度 · 活动</p>
+        <button id="btn-login" class="btn primary" type="button">用 Oura 登录</button>
+        <button id="btn-dev" class="btn ghost" type="button" hidden>DEV 演示登录</button>
+        <p id="login-error" class="status error" hidden></p>
+        <p class="hint login-hint">
+          登录会跳转到 <code>cloud.ouraring.com/oauth/authorize</code>。
+          本地无真实密钥时可用 DEV 演示登录；DEV 日数据来自 kedoupi 个人看板真实样本，不是编造序列。
+        </p>
+      </div>
+    </section>
+
+    <div id="dash-view" hidden>
+      <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+        <defs>
+          <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f97316" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <header class="chrome">
+        <div class="chrome-inner">
+          <a class="brand" href="/">珂抖屁</a>
+          <nav class="nav">
+            <a class="active" href="/">健康</a>
+            <button type="button" id="btnAi" class="ai-btn">AI 分析</button>
+            <span id="session-badge" class="ver-chip" hidden>DEV 演示</span>
+            <button type="button" id="btn-logout" class="ai-btn logout">退出</button>
+          </nav>
         </div>
-      </section>
+      </header>
 
-      <div id="dash-view" hidden>
-        <header class="header">
+      <main class="wrap page" style="max-width:var(--page-max);margin-left:auto;margin-right:auto">
+        <div class="kicker">OURA · HEALTH <span class="ver-chip" id="verChip">版 1735</span></div>
+        <div class="hero-row">
           <div>
-            <h1>oura.kdp.cool</h1>
-            <p class="sub">睡眠 · 准备度 · 活动</p>
+            <h1>健康看板</h1>
+            <p class="sub" id="rangeLabel">睡眠 · 准备度 · 活动 · 近一周</p>
           </div>
-          <div class="header-actions">
-            <span id="session-badge" class="badge" hidden>DEV</span>
-            <button id="btn-logout" class="btn" type="button">退出</button>
+          <div class="range" id="rangeSwitch" role="group" aria-label="时间范围" data-on="7">
+            <span class="range-thumb" aria-hidden="true"></span>
+            <button type="button" data-days="7" id="btn7" class="on">周</button>
+            <button type="button" data-days="30" id="btn30">30</button>
+            <button type="button" data-days="90" id="btn90">90</button>
           </div>
-        </header>
+        </div>
+        <div class="status" id="status">正在加载 Oura 数据…</div>
 
-        <section class="cards" id="summary-cards">
-          <article class="card" data-metric="sleep">
-            <h2>睡眠</h2>
-            <p class="value" id="val-sleep">—</p>
-            <p class="hint">平均分 / 近窗</p>
-          </article>
-          <article class="card" data-metric="readiness">
-            <h2>准备度</h2>
-            <p class="value" id="val-readiness">—</p>
-            <p class="hint">平均分 / 近窗</p>
-          </article>
-          <article class="card" data-metric="activity">
-            <h2>活动</h2>
-            <p class="value" id="val-activity">—</p>
-            <p class="hint">平均分 / 近窗</p>
-          </article>
+        <section class="cards" id="summaryCards">
+          <div class="card skel"><div class="label">睡眠</div><div class="score">—</div><div class="meta">最新得分</div></div>
+          <div class="card skel"><div class="label">准备度</div><div class="score">—</div><div class="meta">最新得分</div></div>
+          <div class="card skel"><div class="label">活动</div><div class="score">—</div><div class="meta">最新得分</div></div>
         </section>
 
-        <section class="trends">
-          <div class="trends-head">
-            <h2>趋势</h2>
-            <div class="range" role="group" aria-label="天数">
-              <button type="button" class="chip" data-days="7">7 天</button>
-              <button type="button" class="chip active" data-days="30">30 天</button>
-              <button type="button" class="chip" data-days="90">90 天</button>
+        <section class="stack">
+          <div class="panel tech">
+            <h2>睡眠 / 准备度 / 活动趋势</h2>
+            <p class="takeaway" id="takeSRA">加载中…</p>
+            <p class="hint">浅橙带=周六日 · 刻度带「六/日」· 虚线为准备度均值</p>
+            <div class="chart-well"><div class="chart-box"><canvas id="chartSRA"></canvas></div></div>
+          </div>
+        </section>
+
+        <section class="viz-row">
+          <div class="panel tech panel-gauge">
+            <h2>准备度仪表</h2>
+            <p class="takeaway" id="takeGauge">加载中…</p>
+            <p class="hint" id="gaugeHint"></p>
+            <div class="chart-well gauge-well">
+              <div class="chart-box gauge-ring">
+                <canvas id="chartGauge"></canvas>
+                <div class="gauge-center">
+                  <div class="gauge-score" id="gaugeScore">—</div>
+                  <div class="gauge-sub" id="gaugeSub"></div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="chart-wrap">
-            <canvas id="trend-chart" height="120"></canvas>
+          <div class="panel tech">
+            <h2>步数档位分布</h2>
+            <p class="takeaway" id="takeDonut">加载中…</p>
+            <p class="hint">按步数档位统计所选区间天数</p>
+            <div class="chart-well"><div class="chart-box pair"><canvas id="chartDonut"></canvas></div></div>
           </div>
-          <p id="status" class="status">加载中…</p>
         </section>
-      </div>
+
+        <section class="stack">
+          <div class="panel tech">
+            <h2>步数</h2>
+            <p class="takeaway" id="takeSteps">加载中…</p>
+            <p class="hint">橙柱高于均值 · 浅柱低于均值 · 虚线为日均</p>
+            <div class="chart-well"><div class="chart-box"><canvas id="chartSteps"></canvas></div></div>
+          </div>
+        </section>
+
+        <section class="viz-row">
+          <div class="panel tech">
+            <h2>准备度贡献雷达</h2>
+            <p class="takeaway" id="takeRadar">加载中…</p>
+            <p class="hint" id="radarHint">最新一日贡献项</p>
+            <div class="chart-well"><div class="chart-box pair"><canvas id="chartRadar"></canvas></div></div>
+          </div>
+          <div class="panel tech">
+            <h2 id="heatTitle">准备度热力</h2>
+            <p class="takeaway" id="takeHeat">加载中…</p>
+            <p class="hint" id="heatHint">所选区间每日 readiness</p>
+            <div class="chart-well">
+              <div class="chart-box pair hm-box">
+                <div class="hm-wdays" id="hmWdays"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+                <div class="heatmap" id="heatmap"></div>
+                <div class="hm-legend">
+                  低
+                  <i style="background:#fff7ed"></i>
+                  <i style="background:#ffedd5"></i>
+                  <i style="background:#fed7aa"></i>
+                  <i style="background:#fdba74"></i>
+                  <i style="background:#f97316"></i>
+                  高
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="avgs">
+          <div class="panel">
+            <h2>区间均值</h2>
+            <p class="takeaway" id="takeAvg">加载中…</p>
+            <p class="hint" id="avgHint">当前所选范围</p>
+            <table class="avg-table" id="avgTable">
+              <thead><tr><th>指标</th><th>均值</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h2>对比参考</h2>
+            <p class="takeaway" id="takeCmp">加载中…</p>
+            <p class="hint">30 天 vs 90 天</p>
+            <table class="avg-table" id="cmpTable">
+              <thead><tr><th>指标</th><th>30 天</th><th>90 天</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="insights" id="insights">
+          <h2>简要洞察</h2>
+          <ul id="insightList"><li>加载中…</li></ul>
+        </section>
+
+        <section class="contrib-grid">
+          <div class="panel">
+            <h2>最新睡眠贡献项</h2>
+            <p class="takeaway" id="takeSleepContrib">加载中…</p>
+            <p class="hint" id="sleepContribDate">—</p>
+            <div class="bars" id="sleepContrib"></div>
+          </div>
+          <div class="panel">
+            <h2>最新准备度贡献项</h2>
+            <p class="takeaway" id="takeReadyContrib">加载中…</p>
+            <p class="hint" id="readyContribDate">—</p>
+            <div class="bars" id="readyContrib"></div>
+          </div>
+        </section>
+
+        <footer class="foot">
+          <span>数据来自 Oura API · 纸面工作室 · 会话看板</span>
+          <span class="ver-chip">build 20260914-1735-ai-now</span>
+        </footer>
+      </main>
+
+      <div class="ai-drawer-mask" id="aiMask" hidden></div>
+      <aside class="ai-drawer" id="aiDrawer" aria-hidden="true" role="dialog" aria-labelledby="aiTitle">
+        <div class="ai-drawer-head">
+          <div class="ai-drawer-title" id="aiTitle">健康诊断报告</div>
+          <button type="button" class="ai-close" id="aiClose" aria-label="关闭">×</button>
+        </div>
+        <div class="ai-status" id="aiStatus"></div>
+        <div class="ai-out" id="aiOut"></div>
+      </aside>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
