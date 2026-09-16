@@ -4,6 +4,11 @@ export type MeResponse = {
   userId: string | null;
   allowDevLogin: boolean;
   oauthConfigured: boolean;
+  subscribed?: boolean;
+  subscriptionStatus?: string | null;
+  localePref?: "system" | "zh" | "en" | null;
+  stripeConfigured?: boolean;
+  priceLabel?: string;
 };
 
 /** DEV UI only when `/api/me` explicitly returned `allowDevLogin: true`. */

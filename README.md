@@ -86,6 +86,8 @@ pnpm dev
 - 未登录：http://localhost:5173 是工具落地页（H1「Oura 健康看板」+ 运营图），主 CTA 走 `/api/auth/oura/start`
 - 运营图：`/marketing/01-hero.png`、`/marketing/02-feature-readiness.png`、`/marketing/03-share-concept.png`
 - 已登录（DEV 页脚或真实 OAuth 回调后）：同一地址直接进看板，无落地页
+- 预览 Worker 必须 `ALLOW_DEV_LOGIN=1`，页脚才有可用的「DEV 演示登录」；生产 unset/`0`
+- `/api/me` 不可达时仍渲染营销页，不出现首屏红色 API 错误，也不提示 pnpm
 - 不要把真实 Client ID / Secret 写进 git
 
 ## Production secrets（oura.kdp.cool）
@@ -107,9 +109,79 @@ OURA_REDIRECT_URI=https://oura.kdp.cool/api/auth/oura/callback
 FRONTEND_ORIGIN=https://oura.kdp.cool
 ```
 
-`ALLOW_DEV_LOGIN` **生产必须关闭**（unset 或 `0`）。本地 `.dev.vars` 才设 `ALLOW_DEV_LOGIN=1`。Oura 应用里的 Redirect URL 必须与 `OURA_REDIRECT_URI` 完全一致。
+`ALLOW_DEV_LOGIN`：
 
-前端只在 `/api/me` **明确返回** `allowDevLogin: true` 时显示 DEV 登录 / 「DEV 演示」徽章；API 不可达时默认关闭，不会回退成 DEV。
+- **预览 / 测试 Worker**（`*.pages.dev` 若挂了 `/api`）：必须设 `ALLOW_DEV_LOGIN=1`，落地页才会出现「DEV 演示登录」，点击后走 `/api/auth/dev/session` 跳过 OAuth 进看板。
+- **生产 oura.kdp.cool**：必须 unset 或 `0`。落地页只保留「用 Oura 登录」。
+- 本地 `.dev.vars` 设 `ALLOW_DEV_LOGIN=1`。
+
+Oura 应用里的 Redirect URL 必须与 `OURA_REDIRECT_URI` 完全一致。
+
+前端只在 `/api/me` **明确返回** `allowDevLogin: true` 时显示 DEV 登录 / 「DEV 演示」徽章。纯静态 Pages（没有 Worker `/api`）时 `/api/me` 失败按未登录渲染营销页，不出现红色错误条，也不会出现 DEV 按钮。
+
+## Locked MVP — 本周解读 / 对比 / Stripe
+
+锁定范围：已有 Oura 环 + 有效会员 + 已在本站 OAuth 的用户。产品是**中文二次解读层**，不改官方分数、不承诺无会员也能拉全量官方数据。
+
+| 页 | 行为 |
+|---|---|
+| 看板 | 入口卡「本周解读」/ Weekly insights |
+| `/insights` | 本周 vs 上周睡眠/准备度/活动各一句模板摘要 + 最多 3 条建议；固定「非医疗建议 / Not medical advice」 |
+| `/compare` | 本周 vs 上周，或近 7 天 vs 近 30 天，两列关键指标 |
+| 付费墙 | 未订阅可看周报前 3 行；全文建议与对比页需订阅 |
+| `/settings` | 语言覆盖 + Stripe 开通 / Customer Portal 取消 |
+
+**语言**：整站壳（落地页 + 看板导航 + 解读入口）跟 `navigator.language`：`zh*` → 中文，否则英文。设置里可覆盖并写入 D1 `user_prefs` + `localStorage`。Phase 1 解读**正文模板只有中文**；英文 UI 用壳 + 「Phase 1 insight body is Chinese-only」。
+
+### Stripe secrets（只走 wrangler，不要进 git）
+
+在 `workers/api`：
+
+```bash
+npx wrangler secret put STRIPE_SECRET_KEY
+npx wrangler secret put STRIPE_WEBHOOK_SECRET
+npx wrangler secret put STRIPE_PRICE_ID
+# 可选。托管 Checkout 跳转不需要 publishable key
+# npx wrangler secret put STRIPE_PUBLISHABLE_KEY
+```
+
+占位价 **¥39/月（B 档）**。在 Stripe Dashboard（test mode）建 recurring Price，把 `price_...` 写入 `STRIPE_PRICE_ID`。币种用 CNY 或你账户支持的币种，UI 文案仍显示 ¥39/月。
+
+Webhook **必须**是：
+
+```
+https://oura.kdp.cool/api/stripe/webhook
+```
+
+Preview 用对应 `*.workers.dev` / 预览域名的同一路径。Dashboard 里只订阅：`checkout.session.completed`、`customer.subscription.*`、`invoice.paid`、`invoice.payment_failed`。
+
+### 支付方式（哪些被 env 打开）
+
+默认 Checkout `mode=subscription` + `automatic_payment_methods[enabled]=true`：由 Stripe 账户 / Dashboard 已开通的方式决定，通常是 **card**。
+
+| 变量 | 作用 |
+|---|---|
+| （不设） | automatic payment methods，卡 + 账户已开通且 Checkout 订阅模式支持的方式 |
+| `STRIPE_PAYMENT_METHOD_TYPES=card,alipay,wechat_pay` | 改用显式 `payment_method_types[]` |
+| `STRIPE_ENABLE_ALIPAY=1` | 追加 `alipay`（还需 Dashboard 打开 Alipay） |
+| `STRIPE_ENABLE_WECHAT_PAY=1` | 追加 `wechat_pay`，并设 `payment_method_options[wechat_pay][client]=web` |
+
+**注意：** Alipay / WeChat Pay 一般**不支持** Checkout `mode=subscription`（钱包多为一次性支付；Alipay 循环扣款多为邀请制）。没开 Dashboard、或订阅模式拒收时，创建 Session 会失败。订阅主路径请先用 **card**。取消走 Stripe Customer Portal。
+
+订阅状态写 D1 `subscriptions`，按 session `user_id` 关联。`active` / `trialing` / 本地 `dev_grant` 视为已订阅。
+
+D1 迁移：`migrations/0002_subscriptions.sql`。本地 `pnpm dev:api` 会 `d1 migrations apply --local`。**不要**在人工 review 前对生产 `oura_kdp` 跑 `--remote`。
+
+### 本地 / Preview 测 Checkout（test mode）
+
+1. Stripe test mode 建 ¥39/月 Price，把 `sk_test_...`、`price_...`、webhook `whsec_...` 放进 Preview Worker secrets（或本地 `.dev.vars`）。
+2. 本地可用 [Stripe CLI](https://stripe.com/docs/stripe-cli)：`stripe listen --forward-to localhost:8787/api/stripe/webhook`，把 CLI 打印的 `whsec_` 写入 `STRIPE_WEBHOOK_SECRET`。
+3. `ALLOW_DEV_LOGIN=1` → DEV 演示登录 → 设置页「开通订阅」→ Checkout 用卡 `4242 4242 4242 4242`。
+4. 成功后应回到 `/insights?checkout=success`，webhook 把 D1 标成 `active`，周报建议与对比解锁。
+5. 「管理 / 取消订阅」打开 Customer Portal。
+6. **没有 Stripe 密钥的 Preview**：设置页 DEV「模拟已订阅 / 恢复未订阅」只点验付费墙，生产必须关 `ALLOW_DEV_LOGIN`。
+
+**不要部署、不要合并到 main。** 生产 oura.kdp.cool 冻结，等人工 review。
 
 ## Cloudflare Pages（`apps/web`）
 
