@@ -18,7 +18,7 @@ pnpm dev
 
 | 服务 | 地址 | 说明 |
 |------|------|------|
-| Web (`apps/web`) | http://localhost:5173 | Vite 看板；`/api` 代理到 Worker |
+| Web (`apps/web`) | http://localhost:5173 | Svelte 5 + Vite SPA 看板；`/api` 代理到 Worker |
 | API (`workers/api`) | http://localhost:8787 | Cloudflare Worker 本地 + D1 |
 
 也可分开跑：
@@ -86,10 +86,19 @@ curl -s -b /tmp/oura-cookies 'http://localhost:8787/api/me/daily?days=7'
 
 **看板**：`apps/web` 已按现网 `h5.xiaotaozi.cc/health/`（build 20260914-1735-ai-now）整页迁入（chrome / 周滑块 / 三卡 spark / SRA / 仪表 / 步数档 / 步数柱 / 雷达 / 热力 / 均值表 / 30vs90 / 洞察 / 贡献条 / AI 抽屉）。OAuth 登录壳叠在看板之上。前端一次拉 `?days=90` 再本地切片，默认周视图。DEV 的 `/api/me/ai` 代理现网 kedoupi AI；OAuth 用户该接口暂 501，抽屉壳保留。
 
+## Svelte pilot（2026-09-16）
+
+`apps/web` 从 vanilla Vite TS 迁到 **Vite + Svelte 5 SPA**（不用 SvelteKit SSR，保持 Cloudflare Pages 静态托管 + Workers API 拆分）。
+
+- 奶油纸看板 CSS token / 类名与现网一致（`apps/web/src/styles.css` 原文复用）
+- 登录、OAuth、DEV 演示、`/api/me/daily`、`/api/me/ai` 路由不变
+- Chart.js 仍走 CDN 4.4.7，Svelte 组件只负责挂载/销毁 canvas
+- **不用 React / React Bits**
+
 ## Layout
 
 ```
-apps/web          Vite + vanilla TS 看板
+apps/web          Vite + Svelte 5 SPA 看板
 workers/api       Cloudflare Worker（OAuth / session / daily）
 migrations/       D1 SQL
 DESIGN.md         产品与安全假设
