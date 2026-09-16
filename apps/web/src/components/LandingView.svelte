@@ -5,10 +5,10 @@
   import LandingSlot from "./LandingSlot.svelte";
 
   let {
-    allowDevLogin,
+    allowDevLogin = false,
     error,
   }: {
-    allowDevLogin: boolean;
+    allowDevLogin?: boolean;
     error: string;
   } = $props();
 
@@ -175,7 +175,7 @@
         rel="noreferrer"
       >GitHub</a>
     </p>
-    {#if allowDevLogin}
+    {#if allowDevLogin === true}
       <button class="landing-dev" type="button" onclick={loginDev}>DEV 演示登录</button>
     {/if}
   </footer>

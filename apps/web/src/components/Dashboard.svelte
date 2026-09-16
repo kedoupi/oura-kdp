@@ -9,7 +9,7 @@
     createStepsChart,
   } from "../lib/charts";
   import { sortDays } from "../lib/format";
-  import type { DailyResponse, Day, MeResponse } from "../lib/types";
+  import { isDevLoginAllowed, type DailyResponse, type Day, type MeResponse } from "../lib/types";
   import { computeViewModel } from "../lib/view-model";
   import AiDrawer from "./AiDrawer.svelte";
   import ChartCanvas from "./ChartCanvas.svelte";
@@ -216,7 +216,7 @@
     </defs>
   </svg>
 
-  <ChromeHeader isDev={me.source === "dev"} {aiBusy} onAi={openAi} onLogout={logout} />
+  <ChromeHeader isDev={isDevLoginAllowed(me.allowDevLogin) && me.source === "dev"} {aiBusy} onAi={openAi} onLogout={logout} />
 
   <main class="wrap page" style="max-width:var(--page-max);margin-left:auto;margin-right:auto">
     <div class="kicker">OURA · HEALTH <span class="ver-chip">版 1735</span></div>

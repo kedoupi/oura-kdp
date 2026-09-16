@@ -1,11 +1,11 @@
 <script lang="ts">
   let {
-    isDev,
+    isDev = false,
     aiBusy,
     onAi,
     onLogout,
   }: {
-    isDev: boolean;
+    isDev?: boolean;
     aiBusy: boolean;
     onAi: () => void;
     onLogout: () => void;
