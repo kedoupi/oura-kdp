@@ -10,5 +10,8 @@ database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "../../migrations"
 
 # Secrets via `wrangler secret put` / `.dev.vars` — never commit real values:
-# OURA_CLIENT_ID, OURA_CLIENT_SECRET, TOKEN_ENCRYPTION_KEY, SESSION_SECRET
-# Optional vars: ALLOW_DEV_LOGIN, FRONTEND_ORIGIN, OURA_REDIRECT_URI
+#   OURA_CLIENT_ID, OURA_CLIENT_SECRET, TOKEN_ENCRYPTION_KEY, SESSION_SECRET
+# Production URLs (vars or secret put):
+#   OURA_REDIRECT_URI=https://oura.kdp.cool/api/auth/oura/callback
+#   FRONTEND_ORIGIN=https://oura.kdp.cool
+# ALLOW_DEV_LOGIN must be unset / 0 in production.

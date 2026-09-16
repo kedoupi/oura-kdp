@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Dashboard from "./components/Dashboard.svelte";
-  import LoginView from "./components/LoginView.svelte";
+  import LandingView from "./components/LandingView.svelte";
   import type { MeResponse } from "./lib/types";
 
   let me = $state<MeResponse | null>(null);
@@ -58,6 +58,12 @@
   onMount(() => {
     void boot();
   });
+
+  $effect(() => {
+    document.title = me?.authenticated
+      ? "健康看板 · 珂抖屁"
+      : "oura.kdp.cool · Oura 睡眠 · 准备度 · 活动";
+  });
 </script>
 
 {#if !booted}
@@ -65,5 +71,5 @@
 {:else if me?.authenticated}
   <Dashboard {me} onUnauthorized={() => showLogin()} />
 {:else}
-  <LoginView allowDevLogin={me?.allowDevLogin ?? true} error={loginError} />
+  <LandingView allowDevLogin={me?.allowDevLogin ?? true} error={loginError} />
 {/if}
