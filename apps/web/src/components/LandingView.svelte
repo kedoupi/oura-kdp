@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fade, fly } from "svelte/transition";
   import { quintOut } from "svelte/easing";
+  import BrandMark from "./BrandMark.svelte";
   import LandingReveal from "./LandingReveal.svelte";
   import LandingSlot from "./LandingSlot.svelte";
 
@@ -74,13 +75,22 @@
   <a class="landing-skip" href="#landing-main">跳到内容</a>
 
   <header class="landing-top">
-    <a class="landing-brand" href="/">oura.kdp.cool</a>
+    <a class="landing-brand" href="/">
+      <BrandMark class="landing-brand-mark" />
+      <span class="landing-brand-name">健康看板</span>
+    </a>
   </header>
 
   <main id="landing-main" class="landing-main">
     <section class="landing-hero" aria-labelledby="landing-title">
       <div class="landing-hero-copy">
-        <h1 id="landing-title" in:introFly={{ y: 14, delay: 40 }}>Oura 健康看板</h1>
+        <h1 id="landing-title" class="landing-wordmark" in:introFly={{ y: 14, delay: 40 }}>
+          <BrandMark class="landing-wordmark-mark" />
+          <span class="landing-wordmark-type">
+            <span class="landing-wordmark-oura">Oura</span>
+            <span class="landing-wordmark-product">健康<span class="landing-wordmark-pill">看板</span></span>
+          </span>
+        </h1>
         <p class="landing-lead" in:introFade={{ delay: 120 }}>
           睡眠 · 准备度 · 活动，一目了然。
         </p>
