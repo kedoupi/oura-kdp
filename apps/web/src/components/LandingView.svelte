@@ -16,9 +16,9 @@
     {
       title: "睡眠",
       text: "周 / 30 / 90 天分数与趋势。",
-      slot: "",
-      src: "",
-      alt: "",
+      slot: "vis-sleep.svg",
+      src: "/marketing/vis-sleep.svg",
+      alt: "睡眠示意：夜色与曲线，不是实时个人数据。",
     },
     {
       title: "准备度",
@@ -30,14 +30,14 @@
     {
       title: "活动",
       text: "步数、热量、档位分布。",
-      slot: "",
-      src: "",
-      alt: "",
+      slot: "vis-activity.svg",
+      src: "/marketing/vis-activity.svg",
+      alt: "活动示意：橙色柱形，不是实时个人数据。",
     },
   ] as const;
 
-  const steps = [
-    { title: "Oura 授权", text: "用自己的账号同意，看自己的看板。" },
+  const chips = [
+    { title: "Oura 授权", text: "用自己的账号，看自己的看板。" },
     { title: "令牌在服务端", text: "加密存放，浏览器拿不到。" },
     { title: "数据只属于你", text: "不出售，也不做公开皮肤。" },
   ] as const;
@@ -80,13 +80,11 @@
   <main id="landing-main" class="landing-main">
     <section class="landing-hero" aria-labelledby="landing-title">
       <div class="landing-hero-copy">
-        <p class="landing-kicker" in:introFade={{ delay: 40 }}>oura.kdp.cool</p>
-        <h1 id="landing-title" in:introFly={{ y: 14, delay: 60 }}>Oura 健康看板</h1>
-        <p class="landing-lead" in:introFade={{ delay: 140 }}>
+        <h1 id="landing-title" in:introFly={{ y: 14, delay: 40 }}>Oura 健康看板</h1>
+        <p class="landing-lead" in:introFade={{ delay: 120 }}>
           睡眠 · 准备度 · 活动，一目了然。
         </p>
-        <p class="landing-tool" in:introFade={{ delay: 180 }}>免费 · 多人可用 · Oura 授权</p>
-        <div class="landing-actions" in:introFly={{ y: 10, delay: 220 }}>
+        <div class="landing-actions" in:introFly={{ y: 10, delay: 180 }}>
           <button class="landing-btn primary" type="button" onclick={loginOura}>
             用 Oura 登录
           </button>
@@ -96,37 +94,35 @@
         {/if}
       </div>
 
-      <div class="landing-hero-art" in:introFly={{ y: 18, delay: 120 }}>
+      <div class="landing-hero-art" in:introFly={{ y: 20, delay: 140 }}>
         <LandingSlot
           slotName="01-hero.png"
           src="/marketing/01-hero.png"
           fallback="/board-preview.svg"
-          alt="示意看板：睡眠、准备度、活动。不是你的实时数据。"
+          alt="示意看板出现在书桌笔记本上。不是你的实时数据。"
           width={1440}
           height={960}
-          caption="示意画面，不是你的实时数据。"
         />
       </div>
     </section>
 
     <section class="landing-section" aria-labelledby="landing-get">
       <LandingReveal>
-        <h2 id="landing-get">登录后看到什么</h2>
+        <p class="landing-kicker">登录之后</p>
+        <h2 id="landing-get">三块，就这些。</h2>
       </LandingReveal>
       <ul class="landing-features">
         {#each features as item, i (item.title)}
           <li>
-            <LandingReveal delay={i * 70}>
+            <LandingReveal delay={i * 80}>
               <article class="landing-card">
-                {#if item.src}
-                  <LandingSlot
-                    slotName={item.slot}
-                    src={item.src}
-                    alt={item.alt}
-                    width={1200}
-                    height={800}
-                  />
-                {/if}
+                <LandingSlot
+                  slotName={item.slot}
+                  src={item.src}
+                  alt={item.alt}
+                  width={1200}
+                  height={800}
+                />
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
               </article>
@@ -136,42 +132,37 @@
       </ul>
     </section>
 
-    <section class="landing-section landing-share" aria-labelledby="landing-how">
+    <section class="landing-section landing-story" aria-labelledby="landing-how">
       <LandingReveal>
+        <p class="landing-kicker">多人可用</p>
+        <h2 id="landing-how">每人登录，看自己的。</h2>
+      </LandingReveal>
+      <LandingReveal delay={60}>
         <LandingSlot
           slotName="03-share-concept.png"
           src="/marketing/03-share-concept.png"
-          alt="多人各用各的账号，数据只属于登录者。示意画面。"
+          alt="多人各自看自己的看板。示意画面。"
           width={1400}
           height={933}
         />
       </LandingReveal>
-      <LandingReveal delay={80}>
-        <div>
-          <h2 id="landing-how">每人登录，看自己的</h2>
-          <ol class="landing-steps">
-            {#each steps as item, i (item.title)}
-              <li>
-                <span class="landing-step-n">{i + 1}</span>
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.text}</p>
-                </div>
-              </li>
-            {/each}
-          </ol>
-        </div>
-      </LandingReveal>
+      <ul class="landing-chips">
+        {#each chips as item, i (item.title)}
+          <li>
+            <LandingReveal delay={80 + i * 60}>
+              <article class="landing-chip">
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            </LandingReveal>
+          </li>
+        {/each}
+      </ul>
     </section>
 
-    <section class="landing-note" aria-labelledby="landing-privacy">
-      <LandingReveal>
-        <h2 id="landing-privacy">说明</h2>
-        <p>
-          本工具用于观察自己的 Oura 日数据，属于教育与自我记录，<strong>不是医疗建议</strong>。
-        </p>
-      </LandingReveal>
-    </section>
+    <p class="landing-disclaimer">
+      本工具用于观察自己的 Oura 日数据，属于教育与自我记录，不是医疗建议。
+    </p>
   </main>
 
   <footer class="landing-foot">
