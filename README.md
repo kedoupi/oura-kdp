@@ -109,6 +109,18 @@ FRONTEND_ORIGIN=https://oura.kdp.cool
 
 `ALLOW_DEV_LOGIN` **生产必须关闭**（unset 或 `0`）。本地 `.dev.vars` 才设 `ALLOW_DEV_LOGIN=1`。Oura 应用里的 Redirect URL 必须与 `OURA_REDIRECT_URI` 完全一致。
 
+前端只在 `/api/me` **明确返回** `allowDevLogin: true` 时显示 DEV 登录 / 「DEV 演示」徽章；API 不可达时默认关闭，不会回退成 DEV。
+
+## Cloudflare Pages（`apps/web`）
+
+生产 Pages 必须部署 **Svelte 构建产物**，不要把仓库根目录或旧的 vanilla `index.html`（登录卡片 + DEV 按钮）当作 Pages 根目录。
+
+```bash
+pnpm --filter @oura-kdp/web build
+```
+
+输出目录：`apps/web/dist`。部署后打开站点应看到营销落地页（H1「Oura 健康看板」+「用 Oura 登录」），不是旧的 login-card HTML。
+
 ## Phase 0 — `/api/me/daily` 契约（2026-09-15）
 
 对照真源：`GET https://api.xiaotaozi.cc/oura/daily?user_id=kedoupi&days=30`（已入库 `workers/api/src/data/oura_daily_kedoupi_30d.json`）。

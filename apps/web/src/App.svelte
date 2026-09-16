@@ -2,20 +2,26 @@
   import { onMount } from "svelte";
   import Dashboard from "./components/Dashboard.svelte";
   import LandingView from "./components/LandingView.svelte";
-  import type { MeResponse } from "./lib/types";
+  import { isDevLoginAllowed, type MeResponse } from "./lib/types";
 
   let me = $state<MeResponse | null>(null);
   let loginError = $state("");
   let booted = $state(false);
 
+  function withExplicitDevLogin(data: MeResponse): MeResponse {
+    return { ...data, allowDevLogin: isDevLoginAllowed(data.allowDevLogin) };
+  }
+
   function showLogin(next?: MeResponse, extraError = "") {
-    me = next ?? {
-      authenticated: false,
-      source: null,
-      userId: null,
-      allowDevLogin: true,
-      oauthConfigured: false,
-    };
+    me = next
+      ? withExplicitDevLogin(next)
+      : {
+          authenticated: false,
+          source: null,
+          userId: null,
+          allowDevLogin: false,
+          oauthConfigured: false,
+        };
     const params = new URLSearchParams(location.search);
     const error = params.get("error");
     if (extraError) {
@@ -37,7 +43,7 @@
         showLogin(data);
         return;
       }
-      me = data;
+      me = withExplicitDevLogin(data);
       loginError = "";
     } catch {
       showLogin(
@@ -45,10 +51,10 @@
           authenticated: false,
           source: null,
           userId: null,
-          allowDevLogin: true,
+          allowDevLogin: false,
           oauthConfigured: false,
         },
-        "无法连接 API。请先运行 pnpm dev（或 pnpm dev:api）。",
+        "无法连接 API，请稍后重试。",
       );
     } finally {
       booted = true;
@@ -71,5 +77,5 @@
 {:else if me?.authenticated}
   <Dashboard {me} onUnauthorized={() => showLogin()} />
 {:else}
-  <LandingView allowDevLogin={me?.allowDevLogin ?? true} error={loginError} />
+  <LandingView allowDevLogin={isDevLoginAllowed(me?.allowDevLogin)} error={loginError} />
 {/if}

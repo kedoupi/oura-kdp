@@ -6,6 +6,11 @@ export type MeResponse = {
   oauthConfigured: boolean;
 };
 
+/** DEV UI only when `/api/me` explicitly returned `allowDevLogin: true`. */
+export function isDevLoginAllowed(value: boolean | null | undefined): boolean {
+  return value === true;
+}
+
 export type Contributors = Record<string, number | null | undefined>;
 
 export type Day = {
