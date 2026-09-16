@@ -61,7 +61,7 @@
 
   $effect(() => {
     document.title = me?.authenticated
-      ? "健康看板 · 珂抖屁"
+      ? "健康看板"
       : "Oura 健康看板";
   });
 </script>

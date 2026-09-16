@@ -4,6 +4,7 @@
   import BrandMark from "./BrandMark.svelte";
   import LandingReveal from "./LandingReveal.svelte";
   import LandingSlot from "./LandingSlot.svelte";
+  import ProductBrand from "./ProductBrand.svelte";
 
   let {
     allowDevLogin,
@@ -75,10 +76,7 @@
   <a class="landing-skip" href="#landing-main">跳到内容</a>
 
   <header class="landing-top">
-    <a class="landing-brand" href="/">
-      <BrandMark class="landing-brand-mark" />
-      <span class="landing-brand-name">健康看板</span>
-    </a>
+    <ProductBrand class="landing-brand" />
   </header>
 
   <main id="landing-main" class="landing-main">
@@ -177,7 +175,7 @@
 
   <footer class="landing-foot">
     <p>
-      oura.kdp.cool · 纸面工作室
+      纸面工作室
       <a
         class="landing-gh-foot"
         href="https://github.com/kedoupi/oura-kdp"

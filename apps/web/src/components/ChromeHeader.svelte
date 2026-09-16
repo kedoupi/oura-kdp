@@ -1,4 +1,6 @@
 <script lang="ts">
+  import ProductBrand from "./ProductBrand.svelte";
+
   let {
     isDev,
     aiBusy,
@@ -14,7 +16,7 @@
 
 <header class="chrome">
   <div class="chrome-inner">
-    <a class="brand" href="/">珂抖屁</a>
+    <ProductBrand class="brand" />
     <nav class="nav">
       <a class="active" href="/">健康</a>
       <button type="button" class="ai-btn" disabled={aiBusy} onclick={onAi}>AI 分析</button>
