@@ -638,6 +638,7 @@ h1{
   max-width:var(--page-max);
   margin:0 auto;
   padding:0 0 calc(28px + var(--safe-b));
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Segoe UI","Microsoft YaHei","Noto Sans CJK SC","Noto Sans SC",sans-serif;
 }
 .landing-skip{
   position:absolute;left:12px;top:8px;

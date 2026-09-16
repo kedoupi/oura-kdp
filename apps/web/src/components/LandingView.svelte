@@ -33,7 +33,7 @@
     },
     {
       title: "令牌只在服务端",
-      text: "refresh token 用 AES-GCM 加密后写入 D1。前端永远拿不到 token。",
+      text: "登录令牌在服务器加密存放。浏览器和前端代码都拿不到。",
     },
     {
       title: "数据只属于你",

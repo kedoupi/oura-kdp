@@ -5,7 +5,7 @@
   "description": "Open-source Oura health dashboard for oura.kdp.cool",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
-    "dev": "pnpm run --parallel dev:web dev:api",
+    "dev": "pnpm --filter @oura-kdp/api db:migrate:local && pnpm --parallel --filter @oura-kdp/web --filter @oura-kdp/api dev",
     "dev:web": "pnpm --filter @oura-kdp/web dev",
     "dev:api": "pnpm --filter @oura-kdp/api db:migrate:local && pnpm --filter @oura-kdp/api dev",
     "build": "pnpm --filter @oura-kdp/web build && pnpm --filter @oura-kdp/api build",
