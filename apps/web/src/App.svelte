@@ -12,7 +12,7 @@
     writeStoredLocalePref,
     type LocalePref,
   } from "./lib/i18n";
-  import { goto, initRouter, path } from "./lib/router.svelte";
+  import { goto, initRouter, router } from "./lib/router.svelte";
   import { isDevLoginAllowed, type MeResponse } from "./lib/types";
 
   let me = $state<MeResponse | null>(null);
@@ -86,7 +86,7 @@
   function showLogin(next?: MeResponse, extraError = "") {
     me = next ? withExplicitDevLogin(next) : loggedOutMe();
     loginError = extraError ? publicLoginError(extraError) : urlLoginError();
-    if (path !== "/") goto("/", true);
+    if (router.path !== "/") goto("/", true);
   }
 
   function applyLocalePref(pref: LocalePref, persistRemote: boolean) {
@@ -145,11 +145,11 @@
   $effect(() => {
     document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
     document.title = me?.authenticated
-      ? path === "/insights"
+      ? router.path === "/insights"
         ? t(locale, "weeklyTitle")
-        : path === "/compare"
+        : router.path === "/compare"
           ? t(locale, "compareTitle")
-          : path === "/settings"
+          : router.path === "/settings"
             ? t(locale, "settingsTitle")
             : t(locale, "dashTitle")
       : t(locale, "landingTitle");
@@ -159,11 +159,11 @@
 {#if !booted}
   <div class="status" style="padding:24px">{t(locale, "loading")}</div>
 {:else if me?.authenticated}
-  {#if path === "/insights"}
+  {#if router.path === "/insights"}
     <WeeklyPage {me} {locale} onUnauthorized={() => showLogin()} onLogout={() => (window.location.href = "/api/auth/logout")} />
-  {:else if path === "/compare"}
+  {:else if router.path === "/compare"}
     <ComparePage {me} {locale} onUnauthorized={() => showLogin()} onLogout={() => (window.location.href = "/api/auth/logout")} />
-  {:else if path === "/settings"}
+  {:else if router.path === "/settings"}
     <SettingsPage
       {me}
       {locale}

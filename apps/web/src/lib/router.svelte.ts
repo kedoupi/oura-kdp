@@ -6,7 +6,7 @@ export function normalizePath(pathname = location.pathname): AppPath {
   return "/";
 }
 
-export let path = $state<AppPath>("/");
+export const router = $state({ path: "/" as AppPath });
 
 export function goto(next: string, replace = false): void {
   const url = next.startsWith("/") ? next : `/${next}`;
@@ -14,13 +14,13 @@ export function goto(next: string, replace = false): void {
   const qs = url.includes("?") ? url.slice(url.indexOf("?")) : "";
   if (replace) history.replaceState({}, "", normalized + qs);
   else history.pushState({}, "", normalized + qs);
-  path = normalized;
+  router.path = normalized;
 }
 
 export function initRouter(): () => void {
-  path = normalizePath();
+  router.path = normalizePath();
   const onPop = () => {
-    path = normalizePath();
+    router.path = normalizePath();
   };
   window.addEventListener("popstate", onPop);
   return () => window.removeEventListener("popstate", onPop);

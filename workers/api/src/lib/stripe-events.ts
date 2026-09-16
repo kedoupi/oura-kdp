@@ -1,5 +1,5 @@
 import type { Env } from "../env";
-import { asRecord, asString } from "./stripe";
+import { asRecord, asString } from "./stripe.ts";
 import {
   findUserIdByCustomer,
   hasStripeEvent,
@@ -7,7 +7,7 @@ import {
   periodEndIso,
   upsertSubscription,
   type SubscriptionRow,
-} from "./subscription";
+} from "./subscription.ts";
 
 export type StripeEvent = {
   id: string;
