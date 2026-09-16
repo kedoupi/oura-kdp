@@ -63,8 +63,25 @@
     return fade(node, { duration: 420, delay: params.delay ?? 0 });
   }
 
-  function loginOura() {
-    window.location.href = "/api/auth/oura/start";
+  const API_UNREACHABLE = "无法连接 API，请稍后重试。";
+  let actionError = $state("");
+  const shownError = $derived(actionError || error);
+
+  async function loginOura() {
+    actionError = "";
+    try {
+      const res = await fetch("/api/auth/oura/start", {
+        credentials: "include",
+        redirect: "manual",
+      });
+      if (res.status === 302 || res.status === 303 || res.type === "opaqueredirect") {
+        window.location.href = res.headers.get("Location") || "/api/auth/oura/start";
+        return;
+      }
+      actionError = API_UNREACHABLE;
+    } catch {
+      actionError = API_UNREACHABLE;
+    }
   }
 
   function loginDev() {
@@ -97,8 +114,8 @@
             用 Oura 登录
           </button>
         </div>
-        {#if error}
-          <p class="status err landing-error" role="alert">{error}</p>
+        {#if shownError}
+          <p class="status err landing-error" role="alert">{shownError}</p>
         {/if}
       </div>
 
@@ -174,15 +191,7 @@
   </main>
 
   <footer class="landing-foot">
-    <p>
-      纸面工作室
-      <a
-        class="landing-gh-foot"
-        href="https://github.com/kedoupi/oura-kdp"
-        target="_blank"
-        rel="noreferrer"
-      >GitHub</a>
-    </p>
+    <p>小桃子智能科技有限公司</p>
     {#if allowDevLogin === true}
       <button class="landing-dev" type="button" onclick={loginDev}>DEV 演示登录</button>
     {/if}

@@ -855,11 +855,6 @@ h1{
   text-decoration:underline;text-underline-offset:3px;
 }
 .landing-dev:hover,.landing-dev:focus-visible{color:var(--ink);outline:none}
-.landing-gh-foot{
-  margin-left:8px;font-size:12px;font-weight:600;color:var(--muted);
-  text-decoration:underline;text-underline-offset:3px;
-}
-.landing-gh-foot:hover,.landing-gh-foot:focus-visible{color:var(--ink)}
 @media (max-width:380px){
   #landing-view h1.landing-wordmark{
     flex-direction:column;align-items:flex-start;gap:10px;

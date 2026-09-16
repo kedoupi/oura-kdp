@@ -86,6 +86,8 @@ pnpm dev
 - 未登录：http://localhost:5173 是工具落地页（H1「Oura 健康看板」+ 运营图），主 CTA 走 `/api/auth/oura/start`
 - 运营图：`/marketing/01-hero.png`、`/marketing/02-feature-readiness.png`、`/marketing/03-share-concept.png`
 - 已登录（DEV 页脚或真实 OAuth 回调后）：同一地址直接进看板，无落地页
+- 预览 Worker 必须 `ALLOW_DEV_LOGIN=1`，页脚才有可用的「DEV 演示登录」；生产 unset/`0`
+- `/api/me` 不可达时仍渲染营销页，不出现首屏红色 API 错误，也不提示 pnpm
 - 不要把真实 Client ID / Secret 写进 git
 
 ## Production secrets（oura.kdp.cool）
@@ -107,9 +109,15 @@ OURA_REDIRECT_URI=https://oura.kdp.cool/api/auth/oura/callback
 FRONTEND_ORIGIN=https://oura.kdp.cool
 ```
 
-`ALLOW_DEV_LOGIN` **生产必须关闭**（unset 或 `0`）。本地 `.dev.vars` 才设 `ALLOW_DEV_LOGIN=1`。Oura 应用里的 Redirect URL 必须与 `OURA_REDIRECT_URI` 完全一致。
+`ALLOW_DEV_LOGIN`：
 
-前端只在 `/api/me` **明确返回** `allowDevLogin: true` 时显示 DEV 登录 / 「DEV 演示」徽章；API 不可达时默认关闭，不会回退成 DEV。
+- **预览 / 测试 Worker**（`*.pages.dev` 若挂了 `/api`）：必须设 `ALLOW_DEV_LOGIN=1`，落地页才会出现「DEV 演示登录」，点击后走 `/api/auth/dev/session` 跳过 OAuth 进看板。
+- **生产 oura.kdp.cool**：必须 unset 或 `0`。落地页只保留「用 Oura 登录」。
+- 本地 `.dev.vars` 设 `ALLOW_DEV_LOGIN=1`。
+
+Oura 应用里的 Redirect URL 必须与 `OURA_REDIRECT_URI` 完全一致。
+
+前端只在 `/api/me` **明确返回** `allowDevLogin: true` 时显示 DEV 登录 / 「DEV 演示」徽章。纯静态 Pages（没有 Worker `/api`）时 `/api/me` 失败按未登录渲染营销页，不出现红色错误条，也不会出现 DEV 按钮。
 
 ## Cloudflare Pages（`apps/web`）
 

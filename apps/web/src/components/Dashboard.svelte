@@ -354,7 +354,7 @@
     </section>
 
     <footer class="foot">
-      <span>数据来自 Oura API · 纸面工作室 · 仅个人看板</span>
+      <span>数据来自 Oura API · 小桃子智能科技有限公司 · 仅个人看板</span>
       <span class="ver-chip">build 20260914-1728-weekend</span>
     </footer>
   </main>

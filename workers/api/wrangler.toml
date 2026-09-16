@@ -14,4 +14,4 @@ migrations_dir = "../../migrations"
 # Production URLs (vars or secret put):
 #   OURA_REDIRECT_URI=https://oura.kdp.cool/api/auth/oura/callback
 #   FRONTEND_ORIGIN=https://oura.kdp.cool
-# ALLOW_DEV_LOGIN must be unset / 0 in production.
+# ALLOW_DEV_LOGIN=1 on preview/test Workers; unset / 0 in production.
