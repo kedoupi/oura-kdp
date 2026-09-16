@@ -62,7 +62,7 @@
   $effect(() => {
     document.title = me?.authenticated
       ? "健康看板 · 珂抖屁"
-      : "oura.kdp.cool · Oura 睡眠 · 准备度 · 活动";
+      : "Oura 健康看板";
   });
 </script>
 

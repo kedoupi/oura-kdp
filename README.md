@@ -2,7 +2,7 @@
 
 Open-source Oura health dashboard for [oura.kdp.cool](https://oura.kdp.cool) — OAuth, sleep / readiness / activity.
 
-未登录是营销首页（奶油纸编辑页 +「用 Oura 登录」）；登录后是完整 Svelte 看板。设计摘要见 [DESIGN.md](./DESIGN.md)。
+未登录是工具落地页（产品标题 + 看板预览 +「用 Oura 登录」）；登录后是完整 Svelte 看板。设计摘要见 [DESIGN.md](./DESIGN.md)。
 
 ## Quick start
 
@@ -83,7 +83,7 @@ pnpm test && pnpm typecheck && pnpm build
 pnpm dev
 ```
 
-- 未登录：http://localhost:5173 是营销首页，主 CTA 走 `/api/auth/oura/start`
+- 未登录：http://localhost:5173 是工具落地页（H1「Oura 健康看板」+ 看板预览），主 CTA 走 `/api/auth/oura/start`
 - 已登录（DEV 页脚或真实 OAuth 回调后）：同一地址直接进看板，无落地页
 - 不要把真实 Client ID / Secret 写进 git
 
