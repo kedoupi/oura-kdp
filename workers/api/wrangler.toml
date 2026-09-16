@@ -5,8 +5,8 @@ compatibility_date = "2025-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "oura_kdp"
-# Replace after: wrangler d1 create oura_kdp
-database_id = "00000000-0000-0000-0000-000000000000"
+# Production D1: oura_kdp
+database_id = "a1a08301-b4f9-4b9c-a1d1-2dd04f9038ab"
 migrations_dir = "../../migrations"
 
 # Secrets via `wrangler secret put` / `.dev.vars` — never commit real values:
