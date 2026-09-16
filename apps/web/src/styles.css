@@ -704,16 +704,33 @@ h1{
 .landing-hint{
   margin-top:14px;font-size:13px;line-height:1.55;color:var(--muted);
 }
-.landing-art{margin:0;min-width:0}
-.landing-art-img{
-  display:block;width:100%;height:auto;
-  max-width:100%;
-  aspect-ratio:720 / 540;
+.landing-slot{margin:0;min-width:0}
+.landing-slot-frame{
+  width:100%;
   border-radius:20px;
   background:var(--peach);
+  border:1px solid var(--line);
+  overflow:hidden;
+  position:relative;
 }
-.landing-art figcaption{
+.landing-slot-img{
+  display:block;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+}
+.landing-slot-ph{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;text-align:center;padding:16px;
+  color:var(--muted);font-size:13px;font-weight:600;
+}
+.landing-slot-ph small{font-size:11px;font-weight:500;word-break:break-all}
+.landing-slot figcaption{
   margin-top:8px;font-size:12px;color:var(--muted);
+}
+.landing-strip{margin-top:16px}
+.landing-share{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  gap:16px;align-items:start;
 }
 .landing-section{padding:32px 0 8px}
 #landing-view h2{
@@ -790,6 +807,7 @@ h1{
     align-items:center;gap:36px;padding-top:20px;
   }
   .landing-features{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .landing-share{grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);gap:28px}
   .landing-section{padding:40px 0 8px}
 }
 @media (prefers-reduced-motion:reduce){

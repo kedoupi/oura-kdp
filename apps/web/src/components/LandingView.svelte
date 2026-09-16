@@ -1,4 +1,6 @@
 <script lang="ts">
+  import LandingSlot from "./LandingSlot.svelte";
+
   let {
     allowDevLogin,
     error,
@@ -77,16 +79,15 @@
         <p class="landing-hint">适配 Oura 授权。登录后进入睡眠 · 准备度 · 活动看板。</p>
       </div>
 
-      <figure class="landing-art">
-        <img
-          class="landing-art-img"
-          src="/board-preview.svg"
-          width="720"
-          height="540"
-          alt="看板示意：睡眠、准备度、活动卡片与趋势、热力。示意纸面，不是真实个人数据。"
-        />
-        <figcaption>纸面示意，不是任何人的实时数据。</figcaption>
-      </figure>
+      <LandingSlot
+        slotName="01-hero.png"
+        src="/marketing/01-hero.png"
+        fallback="/board-preview.svg"
+        alt="看板示意：睡眠、准备度、活动。示意纸面，不是真实个人数据。"
+        width={720}
+        height={540}
+        caption="纸面示意，不是任何人的实时数据。"
+      />
     </section>
 
     <section class="landing-section" aria-labelledby="landing-get">
@@ -99,21 +100,39 @@
           </li>
         {/each}
       </ul>
+      <div class="landing-strip" aria-label="功能配图">
+        <LandingSlot
+          slotName="02-feature-readiness.png"
+          src="/marketing/02-feature-readiness.png"
+          alt="准备度示意，待换运营图。"
+          width={1200}
+          height={675}
+        />
+      </div>
     </section>
 
-    <section class="landing-section" aria-labelledby="landing-how">
-      <h2 id="landing-how">怎么用</h2>
-      <ol class="landing-steps">
-        {#each steps as item, i (item.title)}
-          <li>
-            <span class="landing-step-n">{i + 1}</span>
-            <div>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </div>
-          </li>
-        {/each}
-      </ol>
+    <section class="landing-section landing-share" aria-labelledby="landing-how">
+      <div>
+        <h2 id="landing-how">怎么用</h2>
+        <ol class="landing-steps">
+          {#each steps as item, i (item.title)}
+            <li>
+              <span class="landing-step-n">{i + 1}</span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </div>
+            </li>
+          {/each}
+        </ol>
+      </div>
+      <LandingSlot
+        slotName="03-share-concept.png"
+        src="/marketing/03-share-concept.png"
+        alt="多人各登各的、数据只属于你。待换运营图。"
+        width={800}
+        height={600}
+      />
     </section>
 
     <section class="landing-note" aria-labelledby="landing-privacy">

@@ -83,7 +83,8 @@ pnpm test && pnpm typecheck && pnpm build
 pnpm dev
 ```
 
-- 未登录：http://localhost:5173 是工具落地页（H1「Oura 健康看板」+ 看板预览），主 CTA 走 `/api/auth/oura/start`
+- 未登录：http://localhost:5173 是工具落地页（H1「Oura 健康看板」+ 图片槽位），主 CTA 走 `/api/auth/oura/start`
+- 运营 PNG 按文件名放入 `apps/web/public/marketing/`（见该目录 README）：`01-hero.png`、`02-feature-readiness.png`、`03-share-concept.png`。没有 PNG 时 hero 用 `board-preview.svg`
 - 已登录（DEV 页脚或真实 OAuth 回调后）：同一地址直接进看板，无落地页
 - 不要把真实 Client ID / Secret 写进 git
 
