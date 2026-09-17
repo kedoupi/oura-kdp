@@ -7,4 +7,11 @@ export interface Env {
   SESSION_SECRET?: string;
   ALLOW_DEV_LOGIN?: string;
   FRONTEND_ORIGIN?: string;
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_PRICE_ID?: string;
+  STRIPE_PUBLISHABLE_KEY?: string;
+  STRIPE_PAYMENT_METHOD_TYPES?: string;
+  STRIPE_ENABLE_ALIPAY?: string;
+  STRIPE_ENABLE_WECHAT_PAY?: string;
 }

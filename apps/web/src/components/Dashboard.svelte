@@ -9,6 +9,8 @@
     createStepsChart,
   } from "../lib/charts";
   import { sortDays } from "../lib/format";
+  import { t, type Locale } from "../lib/i18n";
+  import { goto } from "../lib/router.svelte";
   import { isDevLoginAllowed, type DailyResponse, type Day, type MeResponse } from "../lib/types";
   import { computeViewModel } from "../lib/view-model";
   import AiDrawer from "./AiDrawer.svelte";
@@ -20,9 +22,11 @@
 
   let {
     me,
+    locale,
     onUnauthorized,
   }: {
     me: MeResponse;
+    locale: Locale;
     onUnauthorized: () => void;
   } = $props();
 
@@ -30,7 +34,7 @@
 
   let allDays = $state<Day[]>([]);
   let rangeDays = $state(7);
-  let status = $state("正在加载 Oura 数据…");
+  let status = $state("");
   let statusErr = $state(false);
   let resizeTick = $state(0);
   let narrow = $state(false);
@@ -131,7 +135,7 @@
 
   async function load() {
     try {
-      status = "正在加载 Oura 数据…";
+      status = t(locale, "loadingOura");
       statusErr = false;
       const res = await fetch(API, { cache: "no-store", credentials: "include" });
       if (res.status === 401) {
@@ -216,23 +220,48 @@
     </defs>
   </svg>
 
-  <ChromeHeader isDev={isDevLoginAllowed(me.allowDevLogin) && me.source === "dev"} {aiBusy} onAi={openAi} onLogout={logout} />
+  <ChromeHeader
+    isDev={isDevLoginAllowed(me.allowDevLogin) && me.source === "dev"}
+    {locale}
+    active="/"
+    showAi
+    {aiBusy}
+    onAi={openAi}
+    onLogout={logout}
+  />
 
   <main class="wrap page" style="max-width:var(--page-max);margin-left:auto;margin-right:auto">
     <div class="kicker">OURA · HEALTH <span class="ver-chip">版 1735</span></div>
     <div class="hero-row">
       <div>
-        <h1>健康看板</h1>
-        <p class="sub">{vm?.rangeLabel ?? "睡眠 · 准备度 · 活动 · 近一周"}</p>
+        <h1>{t(locale, "dashTitle")}</h1>
+        <p class="sub">{vm?.rangeLabel ?? t(locale, "dashSubFallback")}</p>
       </div>
-      <div class="range" role="group" aria-label="时间范围" data-on={String(rangeDays)}>
+      <div class="range" role="group" aria-label={t(locale, "rangeAria")} data-on={String(rangeDays)}>
         <span class="range-thumb" aria-hidden="true"></span>
-        <button type="button" class:on={rangeDays === 7} onclick={() => setRange(7)}>周</button>
+        <button type="button" class:on={rangeDays === 7} onclick={() => setRange(7)}>{t(locale, "rangeWeek")}</button>
         <button type="button" class:on={rangeDays === 30} onclick={() => setRange(30)}>30</button>
         <button type="button" class:on={rangeDays === 90} onclick={() => setRange(90)}>90</button>
       </div>
     </div>
     <div class="status" class:err={statusErr}>{status}</div>
+
+    <section class="cards insight-entry-row">
+      <a
+        class="card insight-entry"
+        href="/insights"
+        onclick={(e) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          e.preventDefault();
+          goto("/insights");
+        }}
+      >
+        <div class="label">{t(locale, "insightEntryTitle")}</div>
+        <div class="score insight-entry-lead">{t(locale, "insightEntryLead")}</div>
+        <div class="meta">{t(locale, "insightEntryMeta")}</div>
+        <span class="delta">{t(locale, "notMedical")} / {t(locale, "notMedicalEn")}</span>
+      </a>
+    </section>
 
     <SummaryCards cards={vm?.cards ?? []} />
 
@@ -354,7 +383,7 @@
     </section>
 
     <footer class="foot">
-      <span>数据来自 Oura API · 纸面工作室 · 仅个人看板</span>
+      <span>{t(locale, "footData")}</span>
       <span class="ver-chip">build 20260914-1728-weekend</span>
     </footer>
   </main>

@@ -1,5 +1,6 @@
 import type { Env } from "./env";
 import { allowDevLogin, oauthConfigured } from "./lib/config";
+import { ensureSchema } from "./lib/schema";
 import {
   handleDevSession,
   handleLogout,
@@ -8,14 +9,22 @@ import {
 } from "./routes/auth";
 import { handleMeAi } from "./routes/ai";
 import { handleMeDaily } from "./routes/daily";
+import { handleDevSubscription } from "./routes/dev-sub";
+import { handleCompareInsights, handleWeeklyInsights } from "./routes/insights";
 import { handleMe } from "./routes/me";
+import { handleMePrefs } from "./routes/prefs";
+import {
+  handleStripeCheckout,
+  handleStripePortal,
+  handleStripeWebhook,
+} from "./routes/stripe";
 
 function cors(req: Request): HeadersInit {
   const origin = req.headers.get("Origin") ?? "*";
   return {
     "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, Stripe-Signature",
     "Access-Control-Allow-Credentials": "true",
   };
 }
@@ -29,6 +38,9 @@ export default {
     }
 
     try {
+      if (url.pathname.startsWith("/api/")) {
+        await ensureSchema(env);
+      }
       let res: Response;
       switch (url.pathname) {
         case "/api/auth/oura/start":
@@ -46,11 +58,32 @@ export default {
         case "/api/me":
           res = await handleMe(request, env);
           break;
+        case "/api/me/prefs":
+          res = await handleMePrefs(request, env);
+          break;
         case "/api/me/daily":
           res = await handleMeDaily(request, env);
           break;
         case "/api/me/ai":
           res = await handleMeAi(request, env);
+          break;
+        case "/api/me/insights/weekly":
+          res = await handleWeeklyInsights(request, env);
+          break;
+        case "/api/me/insights/compare":
+          res = await handleCompareInsights(request, env);
+          break;
+        case "/api/stripe/checkout":
+          res = await handleStripeCheckout(request, env);
+          break;
+        case "/api/stripe/portal":
+          res = await handleStripePortal(request, env);
+          break;
+        case "/api/stripe/webhook":
+          res = await handleStripeWebhook(request, env);
+          break;
+        case "/api/dev/subscription":
+          res = await handleDevSubscription(request, env);
           break;
         case "/api/health":
           res = Response.json({
